@@ -1,0 +1,1 @@
+{"identifier":"default","description":"LZT Tunnel desktop permissions","windows":["main"],"permissions":["core:default","core:event:default","shell:allow-open"]}
