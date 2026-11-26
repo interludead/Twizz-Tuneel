@@ -34,7 +34,7 @@ struct Runtime {
     children: Mutex<Vec<Child>>,
     mode: Mutex<String>,
     core: Mutex<String>,
-    stats_port: Mutex<Option<u16>>,
+    stats_endpoint: Mutex<Option<(u16, String)>>,
     probe_port: std::sync::atomic::AtomicU16,
     profile_download: Mutex<()>,
     connection_operation: Mutex<()>,
@@ -186,7 +186,7 @@ async fn disconnect_runtime(runtime: &Arc<Runtime>) -> Result<(), String> {
     }
     runtime.probe_port.store(2080, std::sync::atomic::Ordering::Relaxed);
     runtime.core.lock().await.clear();
-    *runtime.stats_port.lock().await = None;
+    *runtime.stats_endpoint.lock().await = None;
     *runtime.exit_ip.lock().await = None;
     if errors.is_empty() { Ok(()) } else { Err(errors.join("; ")) }
 }
@@ -565,31 +565,21 @@ async fn external_ip(state: State<'_, Arc<Runtime>>) -> Result<String, String> {
 /// enabled by config::build when the sing-box version still supports it).
 #[tauri::command]
 async fn traffic_stats(state: State<'_, Arc<Runtime>>) -> Result<serde_json::Value, String> {
-    if state.inner().mode.lock().await.is_empty() {
-        return Err("VPN не подключён".to_string());
-    }
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_millis(1500))
-        .build()
-        .map_err(|e| e.to_string())?;
-    let port=(*state.inner().stats_port.lock().await).ok_or_else(||"Статистика недоступна".to_string())?;
-    let response: serde_json::Value = client
-        .get(format!("http://127.0.0.1:{port}/connections"))
-        .send()
-        .await
-        .map_err(|e| e.to_string())?
-        .json()
-        .await
-        .map_err(|e| e.to_string())?;
-    let upload = response
-        .get("uploadTotal")
-        .and_then(|value| value.as_u64())
-        .unwrap_or(0);
-    let download = response
-        .get("downloadTotal")
-        .and_then(|value| value.as_u64())
-        .unwrap_or(0);
-    Ok(serde_json::json!({"upload": upload, "download": download}))
+    let (port, secret) = state.inner().stats_endpoint.lock().await.clone()
+        .ok_or_else(|| "Статистика недоступна".to_owned())?;
+    let client = reqwest::Client::builder().no_proxy().timeout(Duration::from_millis(1500))
+        .build().map_err(|error| error.to_string())?;
+    let data: serde_json::Value = client.get(format!("http://127.0.0.1:{port}/connections"))
+        .bearer_auth(secret).send().await.and_then(reqwest::Response::error_for_status)
+        .map_err(|error| error.to_string())?.json().await.map_err(|error| error.to_string())?;
+    let counter = |key: &str| data[key].as_u64().ok_or_else(|| format!("Нет счётчика {key}"));
+    Ok(serde_json::json!({"upload": counter("uploadTotal")?, "download": counter("downloadTotal")?}))
+}
+
+#[tauri::command]
+async fn vpn_notice(lost: bool, server: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || windows::vpn_notice(lost, &server))
+        .await.map_err(|error| error.to_string())?
 }
 
 async fn load_profile_sets(app: &AppHandle, runtime: &Runtime, profile: RoutingProfile) -> Result<Vec<(String, PathBuf)>, String> {
@@ -751,12 +741,10 @@ async fn connect(
         None => None,
     };
 
-    // The Clash API block (live traffic counters) is only emitted for
-    // sing-box versions that still accept it; 1.14+ rejects unknown fields.
-    let sing_box_version = core_version(&app, CoreKind::SingBox).unwrap_or_default();
-    let stats_port=if config::supports_clash_api(&sing_box_version){
-        match reserve_local_port(){Ok(port)=>Some(port),Err(error)=>{kill_all(started).await;return Err(error)}}
-    }else{None};
+    let mut stats_key = [0u8; 24];
+    let stats = reserve_local_port().ok().and_then(|port| {
+        getrandom::fill(&mut stats_key).ok().map(|()| (port, hex::encode(stats_key)))
+    });
     let mut bypass_ips=Vec::new();if let Ok(xs)=tokio::net::lookup_host((request.server.host.as_str(),request.server.port)).await{for a in xs{let ip=a.ip().to_string();if !bypass_ips.contains(&ip){bypass_ips.push(ip)}}}
     app.emit("connect-stage", "config").ok();
     let probe_port = match reserve_local_port() {
@@ -767,7 +755,7 @@ async fn connect(
         Ok(sets) => sets,
         Err(error) => { kill_all(started).await; return Err(error); }
     };
-    let cfg=match config::build(&request,bridge,stats_port,&bypass_ips,probe_port,&profile_sets){
+    let cfg=match config::build(&request,bridge,stats.as_ref().map(|(port, secret)| (*port, secret.as_str())),&bypass_ips,probe_port,&profile_sets){
         Ok(value)=>value,
         Err(error)=>{kill_all(started).await;return Err(error)}
     };
@@ -858,7 +846,7 @@ async fn connect(
         }
     }
     runtime.probe_port.store(probe_port, std::sync::atomic::Ordering::Relaxed);
-    *runtime.mode.lock().await=request.mode.clone();*runtime.core.lock().await=plan.core.id().into();*runtime.stats_port.lock().await=stats_port;*runtime.kill_switch_mode.lock().await=request.kill_switch_mode.clone();*runtime.exit_ip.lock().await=Some(exit_ip.clone());*runtime.connection_state.lock().await="connected".into();runtime.network_signature.lock().await.clear();*runtime.health_failures.lock().await=0;*runtime.last_health_check.lock().await=std::time::Instant::now();*runtime.children.lock().await=started;record_trace(&runtime,"connected",serde_json::json!({"core":plan.core.id(),"exit_ip":exit_ip.clone()})).await;
+    *runtime.mode.lock().await=request.mode.clone();*runtime.core.lock().await=plan.core.id().into();*runtime.stats_endpoint.lock().await=stats;*runtime.kill_switch_mode.lock().await=request.kill_switch_mode.clone();*runtime.exit_ip.lock().await=Some(exit_ip.clone());*runtime.connection_state.lock().await="connected".into();runtime.network_signature.lock().await.clear();*runtime.health_failures.lock().await=0;*runtime.last_health_check.lock().await=std::time::Instant::now();*runtime.children.lock().await=started;record_trace(&runtime,"connected",serde_json::json!({"core":plan.core.id(),"exit_ip":exit_ip.clone()})).await;
     if request.mode=="proxy"{let p=std::env::temp_dir().join("lzt-tunnel-proxy-state.json");if let Err(e)=windows::set_proxy(true,&p){disconnect_runtime(&runtime).await.ok();return Err(e)}}
     app.emit("connect-stage",serde_json::json!({"stage":"ready","exit_ip":exit_ip})).ok();Ok(())
 }
@@ -1122,7 +1110,7 @@ fn main() {
         probe_port: std::sync::atomic::AtomicU16::new(2080),
         profile_download: Mutex::new(()),
         connection_operation: Mutex::new(()),
-        stats_port: Mutex::new(None),connection_state:Mutex::new("idle".into()),last_error:Mutex::new(None),exit_ip:Mutex::new(None),kill_switch_mode:Mutex::new("off".into()),network_signature:Mutex::new(String::new()),health_failures:Mutex::new(0),last_health_check:Mutex::new(std::time::Instant::now()),trace:Mutex::new(Vec::new()),
+        stats_endpoint: Mutex::new(None),connection_state:Mutex::new("idle".into()),last_error:Mutex::new(None),exit_ip:Mutex::new(None),kill_switch_mode:Mutex::new("off".into()),network_signature:Mutex::new(String::new()),health_failures:Mutex::new(0),last_health_check:Mutex::new(std::time::Instant::now()),trace:Mutex::new(Vec::new()),
         job: job::ProcessJob::new().expect("Windows Job Object"),
     });
     let app = tauri::Builder::default()
@@ -1138,6 +1126,7 @@ fn main() {
             export_diagnostics,
             external_ip,
             traffic_stats,
+            vpn_notice,
             ping_server,
             ping_servers,
             test_server,

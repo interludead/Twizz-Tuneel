@@ -1,21 +1,19 @@
 # Twizz Tuneel
 
-Windows x64 client built with Tauri 2 and Rust, with sing-box, Xray-core and Mihomo support.
+VPN-клиент для Windows x64 с поддержкой sing-box, Xray-core и Mihomo. Интерфейс работает на Tauri 2, а серверная часть приложения написана на Rust.
 
-## Download
+## Скачать
 
-Download the Windows installer from [Releases](https://github.com/interludead/Twizz-Tuneel/releases). Version: **1.12.0**.
+Установщик Windows x64 доступен на [странице предварительного релиза 1.2.0 RC](https://github.com/interludead/Twizz-Tuneel/releases/tag/v1.2.0-rc). Другие версии доступны в [разделе релизов](https://github.com/interludead/Twizz-Tuneel/releases).
 
-## Build on Windows
+## Сборка на Windows
 
-Run `./build-windows.ps1` in PowerShell. The script prepares dependencies, downloads the runtime cores, runs project checks and Rust tests, and builds the application with NSIS and MSI installers.
+Запустите `./build-windows.ps1` в PowerShell. Сценарий подготовит зависимости, скачает сетевые ядра, выполнит проверки и соберёт приложение и установщики NSIS и MSI.
 
-Build requirements include Node.js, Rust MSVC, Microsoft C++ Build Tools and the Windows SDK. Python is used for static verification.
+Для сборки используются Node.js, Rust с инструментами MSVC, Microsoft C++ Build Tools и Windows SDK. Python нужен для статической проверки проекта.
 
-Installer outputs: `src-tauri/target/release/bundle/nsis/` and `src-tauri/target/release/bundle/msi/`.
+Установщики будут в папках `src-tauri/target/release/bundle/nsis/` и `src-tauri/target/release/bundle/msi/`. Версия без установки сохраняется в `dist/Twizz-Tuneel-TUN.exe`.
 
-## Third-party components
+## Сторонние компоненты
 
-Runtime cores are embedded during compilation and downloaded by the build script from their upstream projects: [sing-box](https://github.com/SagerNet/sing-box), [Xray-core](https://github.com/XTLS/Xray-core), and [Mihomo](https://github.com/MetaCubeX/mihomo). Their respective licenses apply.
-
-Local caches, subscription data, downloaded build tools and build outputs are excluded from this source repository.
+Во время сборки в приложение встраиваются [sing-box](https://github.com/SagerNet/sing-box), [Xray-core](https://github.com/XTLS/Xray-core) и [Mihomo](https://github.com/MetaCubeX/mihomo). Для каждого компонента действует лицензия его проекта.

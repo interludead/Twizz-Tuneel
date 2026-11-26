@@ -222,3 +222,27 @@ pub fn register_subscription_protocols()->Result<(),String>{
 }
 #[cfg(not(windows))]
 pub fn register_subscription_protocols()->Result<(),String>{Ok(())}
+
+pub fn vpn_notice(lost: bool, server: &str) -> Result<(), String> {
+    let title = if lost { "Соединение потеряно" } else { "VPN отключён" };
+    let name: String = server.chars().filter(|ch| !ch.is_control()).take(120).collect();
+    let title = quote(title);
+    let name = quote(&name);
+    run(&format!(r#"
+        $ErrorActionPreference='Stop'
+        $id='Twizz.Tuneel'
+        $key='HKCU:\Software\Classes\AppUserModelId\'+$id
+        if (!(Test-Path $key)) {{
+            New-Item -Path $key -Force | Out-Null
+            New-ItemProperty -Path $key -Name DisplayName -Value 'Twizz Tuneel' -PropertyType String -Force | Out-Null
+        }}
+        $null=[Windows.UI.Notifications.ToastNotificationManager,Windows.UI.Notifications,ContentType=WindowsRuntime]
+        $null=[Windows.Data.Xml.Dom.XmlDocument,Windows.Data.Xml.Dom.XmlDocument,ContentType=WindowsRuntime]
+        $heading=[Security.SecurityElement]::Escape({title})
+        $message=[Security.SecurityElement]::Escape({name})
+        $doc=[Windows.Data.Xml.Dom.XmlDocument]::new()
+        $doc.LoadXml('<toast><visual><binding template="ToastGeneric"><text>'+$heading+'</text><text>'+$message+'</text></binding></visual><audio silent="true"/></toast>')
+        $toast=[Windows.UI.Notifications.ToastNotification]::new($doc)
+        [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($id).Show($toast)
+    "#)).map(|_| ())
+}

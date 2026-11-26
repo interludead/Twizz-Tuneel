@@ -59,14 +59,67 @@ html:not(.particles-running) .particle-field i{animation-play-state:paused}
 .disabled-rule b,.disabled-rule .rule-route{color:var(--muted)}
 
 .rule-tools{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;min-width:0}
-.rule-tools #ruleSearch{width:184px;max-width:100%;min-width:0}
 .rule-tools .btn{flex:none}
 @media(max-width:900px){.rule-tools{justify-content:flex-start}}
 button.admin-switch{cursor:pointer;border:0;padding:0;flex:none}
 button.admin-switch:disabled{cursor:default;opacity:.55}
-</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><svg class="logo" viewBox="0 0 40 34" aria-hidden="true"><path d="M3 5L38 5L36 11L30 11L23 29L15 29L22 11L18 11L10 29L4 29L10 11L1 11Z" fill="currentColor"/></svg><div><b>Twizz Tuneel</b><small>1.12.0 RC</small></div></div><nav class="nav" id="nav"></nav><div class="sidebar-foot"><div class="core"><b id="coreState">● Ядро не проверено</b>sing-box + Xray + Mihomo · Windows x64</div></div></aside><main class="main"><header class="top"><div class="title"><h1 id="pageTitle">Главная</h1><p id="pageSub">Управление защищённым соединением</p></div><div class="top-actions"><div class="ip-pill" id="ipPill" title="Внешний IP — нажмите, чтобы проверить снова"><i class="online-dot checking" id="ipDot"></i><span id="publicIp">Определяю IP…</span></div><button class="btn icon-btn" id="themeCycle" title="Сменить тему">◐</button></div></header>
-<section class="view active" id="dashboard"><div class="dashboard"><div class="panel connect-panel"><div class="connection-head"><div><div class="eyebrow">Состояние VPN</div><div class="state-line"><i class="status-dot" id="statusDot"></i><b id="stateText">Не подключено</b></div></div><div class="mode"><button class="active" data-mode="tun">TUN</button><button data-mode="proxy" title="Прокси для приложений, использующих системные настройки Windows">Системный прокси</button></div></div><div class="server-current"><div class="flag" id="currentFlag"></div><div><h2 id="currentName">Сервер не выбран</h2><p id="currentDetails">Добавьте VPN-подписку</p></div><div class="latency" id="currentPing">—</div></div><div class="connect-row"><button class="connect-button" id="connectBtn">Подключиться</button><button class="btn" data-go="servers">Выбрать сервер</button></div><div class="metrics"><div class="metric"><span>Внешний IP</span><b id="metricIp">—</b></div><div class="metric"><span>Сессия</span><b id="sessionTime">00:00:00</b></div><div class="metric"><span>Получено</span><b id="downloaded">0 Б</b></div><div class="metric"><span>Отправлено</span><b id="uploaded">0 Б</b></div></div></div><div class="side-stack"><div class="panel section-pad"><div class="section-title"><span>Быстрый выбор</span><button class="star on" id="quickFav" title="Показать избранные серверы">★</button></div><div class="quick-list" id="quickList"></div></div></div></div></section>
-<section class="view" id="servers"><div class="toolbar"><input class="search" id="serverSearch" placeholder="Поиск по стране, городу или адресу"><select class="btn" id="serverSort"><option value="source">По подписке</option><option value="name">По названию</option><option value="country">По стране</option><option value="protocol">По протоколу</option><option value="latency">По задержке</option></select><div class="segmented" id="protoFilter"><button class="active" data-filter="all">Все</button><button data-filter="vless">VLESS</button><button data-filter="hysteria2">Hysteria2</button><button data-filter="trojan">Trojan</button><button data-filter="favorite">Избранные</button></div><select class="btn" id="groupMode" title="Стратегия группы"><option value="select">Вручную</option><option value="urltest">URL Test</option><option value="fallback">Fallback</option><option value="balance">Load Balance</option></select><button class="btn" id="fastest">Самый быстрый</button><button class="btn primary" id="pingAll" title="Проверить TCP-задержку и потери напрямую, вне туннеля">Пинг</button></div><div class="table"><div class="thead"><span></span><span>Сервер</span><span>Подписка</span><span>Протокол</span><span>Задержка</span><span class="hide-md">Потери</span><span></span></div><div id="serverRows" aria-label="Серверы. Двойной щелчок для подключения"></div></div></section>
+
+.sort-head{border:0;padding:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;white-space:nowrap}
+.sort-head:hover,.sort-head[aria-pressed="true"]{color:var(--green)}
+#serverRows{user-select:none}
+#serverSearch:is(:autofill, :-webkit-autofill){
+  box-shadow:0 0 0 1000px var(--panel) inset;
+  -webkit-text-fill-color:var(--text);
+  caret-color:var(--text);
+}
+.current-probe{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.current-probe .btn{padding:5px 9px;font-size:12px}
+.sub-traffic small{display:block;color:var(--muted);margin-top:4px}
+#serverRows .srow.ping-selected{background:color-mix(in srgb,var(--panel2),var(--green) 13%)}
+.sub-heading{display:flex;align-items:center;gap:6px}
+.sub-rename{border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 5px}
+.sub-rename:hover{color:var(--green)}
+.traffic-total{margin:10px 0 0;color:var(--muted);font-size:11px}
+html[data-theme="graphite"]{
+  color-scheme:dark;
+  --bg:#191b1f;
+  --side:#1e2125;
+  --panel:#24272c;
+  --panel2:#2d3137;
+  --hover:#363c43;
+  --line:#414851;
+  --text:#f2f4f6;
+  --muted:#aeb7c2;
+  --green:#58dfce;
+  --greenText:#092923;
+}
+html[data-theme="graphite"] :is(.nav button.active,.quick-item.sel,.srow.selected){
+  background:color-mix(in srgb,var(--panel),var(--green) 10%);
+}
+html[data-theme="graphite"] .status-dot.on{
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 20%,transparent);
+}
+html[data-theme="graphite"] :focus-visible{
+  outline:2px solid var(--green);
+  outline-offset:2px;
+}
+#themes [data-theme="graphite"]{
+  grid-column:1 / -1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+}
+.graphite-swatch{
+  width:14px;
+  height:14px;
+  border:1px solid #63717a;
+  border-radius:4px;
+  background:linear-gradient(90deg,#24272c 66%,#58dfce 66%);
+}
+</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><svg class="logo" viewBox="0 0 40 34" aria-hidden="true"><path d="M3 5L38 5L36 11L30 11L23 29L15 29L22 11L18 11L10 29L4 29L10 11L1 11Z" fill="currentColor"/></svg><div><b>Twizz Tuneel</b><small>1.2.0 RC</small></div></div><nav class="nav" id="nav"></nav><div class="sidebar-foot"><div class="core"><b id="coreState">● Ядро не проверено</b>sing-box + Xray + Mihomo · Windows x64</div></div></aside><main class="main"><header class="top"><div class="title"><h1 id="pageTitle">Главная</h1><p id="pageSub">Управление защищённым соединением</p></div><div class="top-actions"><div class="ip-pill" id="ipPill" title="Внешний IP — нажмите, чтобы проверить снова"><i class="online-dot checking" id="ipDot"></i><span id="publicIp">Определяю IP…</span></div><button class="btn icon-btn" id="themeCycle" title="Сменить тему">◐</button></div></header>
+<section class="view active" id="dashboard"><div class="dashboard"><div class="panel connect-panel"><div class="connection-head"><div><div class="eyebrow">Состояние VPN</div><div class="state-line"><i class="status-dot" id="statusDot"></i><b id="stateText">Не подключено</b></div></div><div class="mode"><button class="active" data-mode="tun">TUN</button><button data-mode="proxy" title="Прокси для приложений, использующих системные настройки Windows">Системный прокси</button></div></div><div class="server-current"><div class="flag" id="currentFlag"></div><div><h2 id="currentName">Сервер не выбран</h2><p id="currentDetails">Добавьте VPN-подписку</p></div><div class="current-probe"><span class="latency" id="currentPing" aria-live="polite">—</span><button class="btn" id="pingCurrent" type="button" title="TCP-задержка подключённого сервера" disabled>Пинг</button></div></div><div class="connect-row"><button class="connect-button" id="connectBtn">Подключиться</button><button class="btn" data-go="servers">Выбрать сервер</button></div><div class="metrics"><div class="metric"><span>Внешний IP</span><b id="metricIp">—</b></div><div class="metric"><span>Сессия</span><b id="sessionTime">00:00:00</b></div><div class="metric"><span>Получено</span><b id="downloaded">0 Б</b></div><div class="metric"><span>Отправлено</span><b id="uploaded">0 Б</b></div></div><p id="trafficTotal" class="traffic-total"></p></div><div class="side-stack"><div class="panel section-pad"><div class="section-title"><span>Быстрый выбор</span><button class="star on" id="quickFav" title="Показать избранные серверы">★</button></div><div class="quick-list" id="quickList"></div></div></div></div></section>
+<section class="view" id="servers"><div class="toolbar"><input class="search" id="serverSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Поиск по стране, городу или адресу"><div class="segmented" id="protoFilter"><button class="active" data-filter="all">Все</button><button data-filter="vless">VLESS</button><button data-filter="hysteria2">Hysteria2</button><button data-filter="trojan">Trojan</button><button data-filter="favorite">Избранные</button></div><button class="btn primary" id="pingAll" title="Проверить TCP-задержку и потери напрямую, вне туннеля">Пинг</button></div><div class="table"><div class="thead"><span></span><button class="sort-head" data-sort-server="name">Сервер</button><button class="sort-head" data-sort-server="sub">Подписка</button><span>Протокол</span><button class="sort-head" data-sort-server="latency">Задержка</button><button class="sort-head hide-md" data-sort-server="loss">Потери</button><span></span></div><div id="serverRows" aria-label="Серверы. Shift выделяет диапазон, Ctrl меняет выделение отдельных строк"></div></div></section>
 <section class="view" id="subscriptions"><div class="toolbar"><div style="flex:1"></div><button class="btn" id="refreshSubs">Обновить все</button><button class="btn primary" id="addSub">Добавить подписку</button></div><div class="sub-list" id="subList"></div></section>
 <section class="view" id="routing">
 <div class="panel" id="routingProfiles">
@@ -76,7 +129,7 @@ button.admin-switch:disabled{cursor:default;opacity:.55}
     <button type="button" class="route-profile" data-route-profile="bypass-russia"><b>Bypass Russia</b><small>Российские ресурсы из списков напрямую</small></button>
     <button type="button" class="route-profile" data-route-profile="proxy-russia-blocked"><b>Proxy Russia Blocked</b><small>Через VPN идут ресурсы из списка блокировок</small></button>
   </div>
-</div><div class="routing-grid"><div class="setting"><div><h3>Раздельное туннелирование</h3><p>Применять правила для доменов и приложений</p></div><div class="switch on" data-setting="split"></div></div><div class="setting"><div><h3>Обход локальной сети</h3><p>Не отправлять частные адреса в VPN</p></div><div class="switch on" data-setting="lan"></div></div><div class="panel rule-panel"><div class="rule-head"><div><b>Почему адрес пошёл сюда?</b><div class="cell-sub">Показывает первое совпавшее правило</div></div><div style="display:flex;gap:8px"><input class="search" id="routeTarget" placeholder="youtube.com или IP" style="min-width:280px"><button class="btn primary" id="analyzeRoute">Проверить</button></div></div><div id="routeResult" role="status">Введите домен или IP для анализа маршрута.</div></div><div class="panel rule-panel"><div class="rule-head"><div><b>Правила маршрутизации</b><div class="cell-sub"><span id="ruleTotal">0</span> правил · пользовательские имеют приоритет</div></div><div class="rule-tools"><input class="search" id="ruleSearch" placeholder="Поиск правила" aria-label="Поиск правила"><button class="btn" id="toggleProvider">Provider: ON</button><button class="btn" id="checkConflicts">Конфликты</button><button class="btn" id="addRule">Добавить</button></div></div><div class="rules" id="rules"></div></div></div></section>
+</div><div class="routing-grid"><div class="setting"><div><h3>Раздельное туннелирование</h3><p>Применять правила для доменов и приложений</p></div><div class="switch on" data-setting="split"></div></div><div class="setting"><div><h3>Обход локальной сети</h3><p>Не отправлять частные адреса в VPN</p></div><div class="switch on" data-setting="lan"></div></div><div class="panel rule-panel"><div class="rule-head"><div><b>Почему адрес пошёл сюда?</b><div class="cell-sub">Показывает первое совпавшее правило</div></div><div style="display:flex;gap:8px"><input class="search" id="routeTarget" placeholder="youtube.com или IP" style="min-width:280px"><button class="btn primary" id="analyzeRoute">Проверить</button></div></div><div id="routeResult" role="status">Введите домен или IP для анализа маршрута.</div></div><div class="panel rule-panel"><div class="rule-head"><div><b>Правила маршрутизации</b><div class="cell-sub"><span id="ruleTotal">0</span> правил · пользовательские имеют приоритет</div></div><div class="rule-tools"><button class="btn" id="toggleProvider">Provider: ON</button><button class="btn" type="button" id="showProviderRules" aria-controls="rules" aria-expanded="false" hidden>Показать правила подписок</button><button class="btn" id="checkConflicts">Конфликты</button><button class="btn" id="addRule">Добавить</button></div></div><div class="rules" id="rules"></div></div></div></section>
 <section class="view" id="protection"><div class="settings-grid" id="protectionGrid">
 <div class="setting"><div><h3>Строгий маршрут TUN</h3><p>Не разрешать трафику обходить TUN-интерфейс</p></div><div class="switch" data-protection="strict_route"></div></div><div class="setting"><div><h3>Kill Switch</h3><p>Windows Firewall/WFP: блокирует обход VPN</p></div><select class="btn" id="killSwitchMode"><option value="off">Выключен</option><option value="session">Во время VPN</option><option value="always">До ручного отключения</option></select></div>
 <div class="setting"><div><h3>DNS через VPN</h3><p>Отправлять запросы защищённому DNS через прокси</p></div><div class="switch" data-protection="secure_dns"></div></div>
@@ -96,8 +149,9 @@ button.admin-switch:disabled{cursor:default;opacity:.55}
 <button type="button" class="theme" data-theme="oled">OLED</button>
 <button type="button" class="theme" data-theme="oled-particles">OLED с частицами</button>
 <button type="button" class="theme" data-theme="system">Системная</button>
-</div></div><div class="setting"><div><h3>Автообновление подписок</h3><p>Клиент сам загружает свежие серверы и правила в фоне. Интервал настраивается у каждой подписки на вкладке «Подписки» — блок «Автообновление». Здесь обновление можно отключить полностью</p></div><div class="switch on" data-setting="autoupdate"></div></div><div class="setting"><div><h3 id="adminSettingLabel">Всегда запускать от имени администратора</h3><p id="adminSettingHint">При следующем запуске Windows запросит подтверждение.</p></div><button class="switch admin-switch" type="button" role="switch" aria-checked="false" aria-labelledby="adminSettingLabel" id="alwaysAdmin" disabled></button></div></div></section></main></div>
-<div class="modal-bg" id="subModal"><div class="modal"><h2>Добавить подписку</h2><p>Поддерживаются Clash/Mihomo, YAML/JSON, Base64 и URI: VLESS, VMess, Trojan, Hysteria2, Shadowsocks, TUIC и AnyTLS.</p><div class="field"><label>Название</label><input id="subName" value="Моя подписка"></div><div class="field"><label>Ссылка подписки (HTTPS или HTTP)</label><input id="subUrl" placeholder="https://provider.example/sub/…"></div><div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary" id="importSub">Импортировать</button></div></div></div><div class="modal-bg" id="ruleModal"><div class="modal"><h2 id="ruleEditorTitle">Новое правило</h2><div class="field"><label>Тип</label><select id="ruleType"><option>Домен</option><option>Точный домен</option><option>Ключ домена</option><option>IP / CIDR</option><option>Приложение</option><option>Порт назначения</option><option>GEOIP</option><option>GEOSITE</option></select></div><div class="field"><label>Значение</label><input id="ruleValue" placeholder="example.com"></div><div class="field"><label>Маршрут</label><select id="ruleRoute"><option value="direct">Напрямую</option><option value="proxy">Через VPN</option><option value="block">Блокировать</option></select></div><div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary" id="saveRule">Добавить</button></div></div></div><div class="conn-banner" id="connBanner" role="status"><span class="spinner"></span><span id="connBannerText">Подключение…</span></div><div class="toast" id="toast"></div>
+<button type="button" class="theme" data-theme="graphite"><span class="graphite-swatch" aria-hidden="true"></span>Графит</button>
+</div></div><div class="setting"><div><h3>Автообновление подписок</h3><p>Клиент сам загружает свежие серверы и правила в фоне. Интервал настраивается у каждой подписки на вкладке «Подписки» — блок «Автообновление». Здесь обновление можно отключить полностью</p></div><div class="switch on" data-setting="autoupdate"></div></div><div class="setting"><div><h3 id="notificationSettingLabel">Уведомления Windows</h3><p>Сообщать об отключении и потере VPN-соединения.</p></div><button class="switch admin-switch" type="button" role="switch" aria-labelledby="notificationSettingLabel" id="vpnNotifications"></button></div><div class="setting"><div><h3 id="adminSettingLabel">Всегда запускать от имени администратора</h3><p id="adminSettingHint">При следующем запуске Windows запросит подтверждение.</p></div><button class="switch admin-switch" type="button" role="switch" aria-checked="false" aria-labelledby="adminSettingLabel" id="alwaysAdmin" disabled></button></div></div></section></main></div>
+<div class="modal-bg" id="subModal"><div class="modal"><h2>Добавить подписку</h2><p>Поддерживаются Clash/Mihomo, YAML/JSON, Base64 и URI: VLESS, VMess, Trojan, Hysteria2, Shadowsocks, TUIC и AnyTLS.</p><div class="field"><label>Название</label><input id="subName" value="Моя подписка"></div><div class="field"><label>Ссылка подписки (HTTPS или HTTP)</label><input id="subUrl" placeholder="https://provider.example/sub/…"></div><div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary" id="importSub">Импортировать</button></div></div></div><div class="modal-bg" id="renameSubModal"><form class="modal" id="renameSubForm"><h2>Переименовать подписку</h2><div class="field"><label for="renameSubName">Название</label><input id="renameSubName" maxlength="120" required></div><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form></div><div class="modal-bg" id="ruleModal"><div class="modal"><h2 id="ruleEditorTitle">Новое правило</h2><div class="field"><label>Тип</label><select id="ruleType"><option>Домен</option><option>Точный домен</option><option>Ключ домена</option><option>IP / CIDR</option><option>Приложение</option><option>Порт назначения</option><option>GEOIP</option><option>GEOSITE</option></select></div><div class="field"><label>Значение</label><input id="ruleValue" placeholder="example.com"></div><div class="field"><label>Маршрут</label><select id="ruleRoute"><option value="direct">Напрямую</option><option value="proxy">Через VPN</option><option value="block">Блокировать</option></select></div><div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary" id="saveRule">Добавить</button></div></div></div><div class="conn-banner" id="connBanner" role="status"><span class="spinner"></span><span id="connBannerText">Подключение…</span></div><div class="toast" id="toast"></div>
 <script>
 const invoke=window.__TAURI__?.core?.invoke;const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];function readJson(key,fallback){try{const raw=localStorage.getItem(key);if(raw==null||raw===''||raw==='undefined'||raw==='null')return fallback;const value=JSON.parse(raw);return value??fallback}catch(e){console.warn('Reset broken localStorage key',key,e);localStorage.removeItem(key);return fallback}}function asArray(value){return Array.isArray(value)?value:[]}function asObject(value){return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}const ICONS={dashboard:'<path d="M4 12l8-7 8 7v7a2 2 0 01-2 2H6a2 2 0 01-2-2z"/>',servers:'<rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/>',subscriptions:'<path d="M4 6h16M4 12h16M4 18h10"/>',routing:'<path d="M4 7h6l4 10h6M15 4l3 3-3 3"/>',protection:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',diagnostics:'<path d="M3 12h4l2.5-6 4 12 2.5-6h5"/>',settings:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.4 5.4l2.1 2.1M16.5 16.5l2.1 2.1M18.6 5.4l-2.1 2.1M7.5 16.5l-2.1 2.1"/>'};
 const navItems=[['dashboard','','Главная','Управление защищённым соединением'],['servers','','Серверы','Локации, протоколы и качество соединения'],['subscriptions','','Подписки','Источники конфигураций и лимиты'],['routing','','Маршрутизация','Раздельный туннель и правила'],['protection','','Защита','DNS, утечки и ограничения транспорта'],['diagnostics','','Диагностика','Проверка сети и журнал клиента'],['settings','','Настройки','Интерфейс, безопасность и обновления']];$('#nav').innerHTML=navItems.map((n,i)=>`<button data-go="${n[0]}" class="${i?'':'active'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n[0]]}</svg>${n[2]}</button>`).join('');
@@ -199,15 +253,47 @@ const FLAGS={
  za:`<rect width="36" height="25" fill="#002395"/><rect width="36" height="12.5" fill="#de3831"/><rect y="10" width="36" height="5" fill="#fff"/><path d="M0 0l14 12.5L0 25z" fill="#007a4d" stroke="#fff" stroke-width="2"/>`,
  xx:`<rect width="36" height="25" fill="#39423d"/><circle cx="18" cy="12.5" r="6.5" fill="none" stroke="#9ba59f" stroke-width="1.4"/><path d="M11.5 12.5h13M18 6v13" stroke="#9ba59f" stroke-width="1"/>`
 };
-let savedSubscription=asObject(readJson('nativeSub',null));let fullSubscriptions=asArray(readJson('fullSubscriptions',[]));if(!fullSubscriptions.length&&savedSubscription&&Object.keys(savedSubscription).length)fullSubscriptions=[savedSubscription];fullSubscriptions=fullSubscriptions.map(x=>asObject(x)).map(x=>({...x,servers:asArray(x.servers).filter(s=>String(s.host||'').toLowerCase()!=='error.cdn-global.pro'),rules:asArray(x.rules),history:asArray(x.history)})).filter(x=>x.servers.length);localStorage.fullSubscriptions=JSON.stringify(fullSubscriptions);let activeSubscriptions=fullSubscriptions.filter(x=>x.enabled!==false).sort((a,b)=>(b.priority||0)-(a.priority||0));let providerRules=activeSubscriptions.flatMap(x=>asArray(x.rules));let providerRulesEnabled=localStorage.providerRulesEnabled!=='false';let providerRuleCount=activeSubscriptions.reduce((n,x)=>n+(Number(x.rule_count)||0),0);let mergedServers=activeSubscriptions.flatMap(x=>asArray(x.servers).map(server=>({...server,sub:x.name||'Моя подписка'})));let servers=mergedServers;servers.forEach((s,i)=>{s.cc=country(s.name,s.host);s.sub=s.sub||'Моя подписка';s.loss=s.loss??0;s.fav=s.fav??i<2});let latencyCache=asObject(readJson('latencyCache',{}));function applyLatencyCache(){servers.forEach(s=>{if(s.latency_ms==null&&latencyCache[s.id]!=null)s.latency_ms=latencyCache[s.id]})}function saveLatencyCache(){latencyCache={};servers.forEach(s=>{if(s.latency_ms!=null)latencyCache[s.id]=s.latency_ms});localStorage.latencyCache=JSON.stringify(latencyCache)}applyLatencyCache();let selected=Number(localStorage.selectedServer||0);if(!Number.isFinite(selected))selected=0;let filter='all',connected=false,timer,activeServer=null,pendingServerId=null,serverSwitching=false;const protectionDefaults={strict_route:true,secure_dns:true,dns_hijack:true,allow_lan:true,ipv6:false,block_quic:false,dns_mode:'split',ipv6_mode:'block',sniff:true,cache_enabled:true,dns_preset:'cloudflare',core_preference:'auto',kill_switch_mode:'session'};const routeProfiles=["custom","bypass-russia","proxy-russia-blocked"];const routingDefaults={split:true,profile:"custom"};let routingState={...routingDefaults,...asObject(readJson('routingState',{}))};if(!routeProfiles.includes(routingState.profile))routingState.profile="custom";let protection={...protectionDefaults,...asObject(readJson('protection',{}))};
+let savedSubscription=asObject(readJson('nativeSub',null));let fullSubscriptions=asArray(readJson('fullSubscriptions',[]));if(!fullSubscriptions.length&&savedSubscription&&Object.keys(savedSubscription).length)fullSubscriptions=[savedSubscription];fullSubscriptions=fullSubscriptions.map(x=>asObject(x)).map(x=>({...x,servers:asArray(x.servers).filter(s=>String(s.host||'').toLowerCase()!=='error.cdn-global.pro'),rules:asArray(x.rules),history:asArray(x.history)})).filter(x=>x.servers.length);localStorage.fullSubscriptions=JSON.stringify(fullSubscriptions);let activeSubscriptions=fullSubscriptions.filter(x=>x.enabled!==false).sort((a,b)=>(b.priority||0)-(a.priority||0));let providerRules=activeSubscriptions.flatMap(x=>asArray(x.rules));let providerRulesEnabled=localStorage.providerRulesEnabled!=='false';let providerRuleCount=activeSubscriptions.reduce((n,x)=>n+(Number(x.rule_count)||0),0);let mergedServers=activeSubscriptions.flatMap(x=>asArray(x.servers).map(server=>({...server,sub:x.name||'Моя подписка',subscriptionId:x.id})));let servers=mergedServers;servers.forEach((s,i)=>{s.cc=country(s.name,s.host);s.sub=s.sub||'Моя подписка';s.loss=s.loss??0;s.fav=s.fav??i<2});let latencyCache=asObject(readJson('latencyCache',{}));function applyLatencyCache(){servers.forEach(s=>{if(s.latency_ms==null&&latencyCache[s.id]!=null)s.latency_ms=latencyCache[s.id]})}function saveLatencyCache(){latencyCache={};servers.forEach(s=>{if(s.latency_ms!=null)latencyCache[s.id]=s.latency_ms});localStorage.latencyCache=JSON.stringify(latencyCache)}applyLatencyCache();let selected=Number(localStorage.selectedServer||0);if(!Number.isFinite(selected))selected=0;let filter='all',connected=false,timer,activeServer=null,pendingServerId=null,pendingMode=null,activeMode=null,serverSwitching=false;const protectionDefaults={strict_route:true,secure_dns:true,dns_hijack:true,allow_lan:true,ipv6:false,block_quic:false,dns_mode:'split',ipv6_mode:'block',sniff:true,cache_enabled:true,dns_preset:'cloudflare',core_preference:'auto',kill_switch_mode:'session'};const routeProfiles=["custom","bypass-russia","proxy-russia-blocked"];const routingDefaults={split:true,profile:"custom"};let routingState={...routingDefaults,...asObject(readJson('routingState',{}))};if(!routeProfiles.includes(routingState.profile))routingState.profile="custom";let protection={...protectionDefaults,...asObject(readJson('protection',{}))};
 function flag(cc){const body=FLAGS[String(cc||'').toLowerCase()]||FLAGS.xx;return `<svg viewBox="0 0 36 25" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${body}</svg>`}
 function countryName(cc){const names={ad:'Андорра',ae:'ОАЭ',af:'Афганистан',al:'Албания',am:'Армения',ar:'Аргентина',at:'Австрия',au:'Австралия',az:'Азербайджан',ba:'Босния',bd:'Бангладеш',be:'Бельгия',bg:'Болгария',bh:'Бахрейн',br:'Бразилия',by:'Беларусь',ca:'Канада',ch:'Швейцария',cl:'Чили',cn:'Китай',co:'Колумбия',cr:'Коста-Рика',cy:'Кипр',cz:'Чехия',de:'Германия',dk:'Дания',dz:'Алжир',ec:'Эквадор',ee:'Эстония',eg:'Египет',es:'Испания',fi:'Финляндия',fr:'Франция',gb:'Великобритания',ge:'Грузия',gr:'Греция',hk:'Гонконг',hr:'Хорватия',hu:'Венгрия',id:'Индонезия',ie:'Ирландия',il:'Израиль',in:'Индия',iq:'Ирак',ir:'Иран',is:'Исландия',it:'Италия',jo:'Иордания',jp:'Япония',ke:'Кения',kg:'Киргизия',kh:'Камбоджа',kr:'Южная Корея',kw:'Кувейт',kz:'Казахстан',lb:'Ливан',lk:'Шри-Ланка',lt:'Литва',lu:'Люксембург',lv:'Латвия',ma:'Марокко',mc:'Монако',md:'Молдова',me:'Черногория',mk:'Северная Македония',mn:'Монголия',mo:'Макао',mt:'Мальта',mx:'Мексика',my:'Малайзия',ng:'Нигерия',nl:'Нидерланды',no:'Норвегия',np:'Непал',nz:'Новая Зеландия',om:'Оман',pa:'Панама',pe:'Перу',ph:'Филиппины',pk:'Пакистан',pl:'Польша',pt:'Португалия',qa:'Катар',ro:'Румыния',rs:'Сербия',ru:'Россия',sa:'Саудовская Аравия',se:'Швеция',sg:'Сингапур',si:'Словения',sk:'Словакия',th:'Таиланд',tn:'Тунис',tr:'Турция',tw:'Тайвань',ua:'Украина',us:'США',uy:'Уругвай',uz:'Узбекистан',ve:'Венесуэла',vn:'Вьетнам',za:'ЮАР'};return names[cc]||'Неизвестно'}
 function go(id){$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('[data-go]').forEach(b=>b.classList.toggle('active',b.dataset.go===id));let n=navItems.find(x=>x[0]===id);$('#pageTitle').textContent=n[2];$('#pageSub').textContent=n[3]}$$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 function protocolLabel(s){if(s.core_protocol)return s.core_protocol;const map={vless:'VLESS',trojan:'Trojan',hysteria2:'Hysteria2',hysteria:'Hysteria',vmess:'VMess',tuic:'TUIC',shadowsocks:'Shadowsocks',ss:'Shadowsocks',anytls:'AnyTLS'};return map[String(s.protocol||'').toLowerCase()]||String(s.protocol||'—').toUpperCase()}
 function pingClass(value){return value==null?'none':value<70?'good':value<130?'mid':'bad'}
-function renderServers(){let q=$('#serverSearch').value.toLowerCase();let rows=servers.map((s,i)=>({s,i})).filter(({s})=>(filter==='all'||filter==='favorite'&&s.fav||String(s.protocol||'').toLowerCase()===filter)&&[s.name,s.host,s.sub,s.protocol,countryName(s.cc),s.cc].join(' ').toLowerCase().includes(q));let sm=$('#serverSort')?.value||'source';rows.sort((a,b)=>sm==='name'?a.s.name.localeCompare(b.s.name,'ru'):sm==='country'?countryName(a.s.cc).localeCompare(countryName(b.s.cc),'ru'):sm==='protocol'?String(a.s.protocol||'').localeCompare(String(b.s.protocol||'')):sm==='latency'?(a.s.latency_ms??999999)-(b.s.latency_ms??999999):a.i-b.i);$('#serverRows').innerHTML=rows.map(({s,i})=>`<div class="srow ${i===selected?'selected':''}" data-i="${i}" tabindex="0"><div class="flag" title="${countryName(s.cc)}">${flag(s.cc)}</div><div class="name"><b>${esc(s.name)}${connected&&activeServer?.id===s.id?'<span class="server-confirmed" title="Подключено" aria-label="Подключено">✓</span>':''}</b><small>${esc(s.host)}:${s.port}${s.jitter!=null?` · jitter ${s.jitter} мс · стабильность ${s.stability}%`:''}</small></div><div class="cell-sub">${esc(s.sub)}</div><div class="proto">${protocolLabel(s)}<small style="display:block;opacity:.65">${s.core_supported===false?'ядро не поддерживает':(s.core_title?s.core_title+(s.core_transport?' · '+s.core_transport:''):'')}</small></div><div class="ping ${pingClass(s.latency_ms)}">${s.latency_ms??'—'}${s.latency_ms!=null?' мс':''}</div><div class="loss hide-md">${s.loss}%</div><button class="star ${s.fav?'on':''}" data-star="${i}">${s.fav?'★':'☆'}</button></div>`).join('')||'<div class="empty">Нет серверов — добавьте подписку или измените условия поиска</div>';
+const serverOrder=asObject(readJson('serverColumnSort',{}));
+const pingSelection=new Set();
+let pingAnchor=null;
+function sortServers(a,b){
+  const key=serverOrder.key;
+  const direction=serverOrder.desc?-1:1;
+  if(key==='name'||key==='sub')return direction*String(a.s[key]||'').localeCompare(String(b.s[key]||''),'ru')||a.i-b.i;
+  if(key==='latency'||key==='loss'){
+    const get=s=>key==='latency'?s.latency_ms:(s.latency_ms!=null||s.unavailable?s.loss:null);
+    const x=get(a.s),y=get(b.s);
+    if(x==null||y==null)return Number(x==null)-Number(y==null)||a.i-b.i;
+    return direction*(x-y)||a.i-b.i;
+  }
+  return a.i-b.i;
+}
+function serverPingTargets(rows){
+  const visible=rows.map(row=>servers[+row.dataset.i]);
+  if($('#serverSearch').value.trim())return visible;
+  const selection=visible.filter(server=>pingSelection.has(server.id));
+  return selection.length?selection:visible;
+}
+function markServerSelection(){
+  const rows=$$('#serverRows .srow');
+  for(const row of rows){
+    const selectedForPing=pingSelection.has(servers[+row.dataset.i]?.id);
+    row.classList.toggle('ping-selected',selectedForPing);
+  }
+  const button=$('#pingAll');
+  const count=serverPingTargets(rows).length;
+  if(!button.disabled)button.textContent=count?'Пинг ('+count+')':'Пинг';
+}
+function renderServers(){let q=$('#serverSearch').value.trim().toLowerCase();let rows=servers.map((s,i)=>({s,i})).filter(({s})=>(filter==='all'||filter==='favorite'&&s.fav||String(s.protocol||'').toLowerCase()===filter)&&[s.name,s.host,s.sub,s.protocol,countryName(s.cc),s.cc].join(' ').toLowerCase().includes(q));rows.sort(sortServers);$('#serverRows').innerHTML=rows.map(({s,i})=>`<div class="srow ${i===selected?'selected':''}" data-i="${i}" tabindex="0"><div class="flag" title="${countryName(s.cc)}">${flag(s.cc)}</div><div class="name"><b>${esc(s.name)}${connected&&activeServer?.id===s.id?'<span class="server-confirmed" title="Подключено" aria-label="Подключено">✓</span>':''}</b><small>${esc(s.host)}:${s.port}${s.jitter!=null?` · jitter ${s.jitter} мс · стабильность ${s.stability}%`:''}</small></div><div class="cell-sub">${esc(s.sub)}</div><div class="proto">${protocolLabel(s)}<small style="display:block;opacity:.65">${s.core_supported===false?'ядро не поддерживает':(s.core_title?s.core_title+(s.core_transport?' · '+s.core_transport:''):'')}</small></div><div class="ping ${pingClass(s.latency_ms)}">${s.latency_ms??'—'}${s.latency_ms!=null?' мс':''}</div><div class="loss hide-md">${s.loss}%</div><button class="star ${s.fav?'on':''}" data-star="${i}">${s.fav?'★':'☆'}</button></div>`).join('')||'<div class="empty">Нет серверов — добавьте подписку или измените условия поиска</div>';markServerSelection();
 }
 const serverRows=$('#serverRows');
+serverRows.addEventListener('selectstart',event=>event.preventDefault());
 serverRows.onclick=event=>{
   const star=event.target.closest('[data-star]');
   if(star){
@@ -219,13 +305,41 @@ serverRows.onclick=event=>{
   if(!row||$('#connectBtn').disabled)return;
   const index=+row.dataset.i;
   if(!servers[index])return;
+  if(event.shiftKey){
+    const rows=$$('#serverRows .srow');
+    const start=rows.findIndex(item=>servers[+item.dataset.i]?.id===pingAnchor);
+    const end=rows.indexOf(row);
+    if(!event.ctrlKey&&!event.metaKey)pingSelection.clear();
+    if(start>=0&&end>=0){
+      for(const item of rows.slice(Math.min(start,end),Math.max(start,end)+1)){
+        pingSelection.add(servers[+item.dataset.i].id);
+      }
+    }else{
+      pingAnchor=servers[index].id;
+      pingSelection.add(pingAnchor);
+    }
+    markServerSelection();
+    return;
+  }
+  if(event.ctrlKey||event.metaKey){
+    const id=servers[index].id;
+    if(pingSelection.has(id))pingSelection.delete(id);
+    else pingSelection.add(id);
+    pingAnchor=id;
+    markServerSelection();
+    return;
+  }
+  pingAnchor=servers[index].id;
+  pingSelection.clear();
+  pingSelection.add(pingAnchor);
+  markServerSelection();
   selected=index;
   localStorage.selectedServer=index;
   $$('.srow').forEach(item=>item.classList.toggle('selected',item===row));
   renderSelectedServer();
 };
 function connectFromServerRow(event){
-  if(event.target.closest('[data-star]'))return;
+  if(event.shiftKey||event.ctrlKey||event.metaKey||event.target.closest('[data-star]'))return;
   const row=event.target.closest('.srow');
   if(row)chooseServer(+row.dataset.i,true);
 }
@@ -237,22 +351,23 @@ serverRows.onkeydown=event=>{
   }
 };
 function renderAll(){renderServers();renderSelectedServer()}
-function renderSelectedServer(){let s=connected&&activeServer?activeServer:(servers[selected]||servers[0]);if(!s){$('#currentFlag').innerHTML=flag('xx');$('#currentName').textContent='Сервер не выбран';$('#currentDetails').textContent='Добавьте VPN-подписку';$('#currentPing').textContent='—';$('#quickList').innerHTML='<div class="cell-sub">Нет серверов</div>';return}$('#currentFlag').innerHTML=flag(s.cc);$('#currentFlag').title=countryName(s.cc);$('#currentName').textContent=s.name;$('#currentDetails').textContent=`${countryName(s.cc)} · ${protocolLabel(s)} · ${s.host}:${s.port}${s.core_title?' · '+s.core_title:''}`;$('#currentPing').textContent=s.latency_ms==null?'—':s.latency_ms+' мс';renderQuick()}
+let currentPingPending=false;
+function renderSelectedServer(){$('#pingCurrent').disabled=!invoke||!connected||!activeServer||currentPingPending;let s=connected&&activeServer?activeServer:(servers[selected]||servers[0]);if(!s){$('#currentFlag').innerHTML=flag('xx');$('#currentName').textContent='Сервер не выбран';$('#currentDetails').textContent='Добавьте VPN-подписку';$('#currentPing').textContent='—';$('#quickList').innerHTML='<div class="cell-sub">Нет серверов</div>';return}$('#currentFlag').innerHTML=flag(s.cc);$('#currentFlag').title=countryName(s.cc);$('#currentName').textContent=s.name;$('#currentDetails').textContent=`${countryName(s.cc)} · ${protocolLabel(s)} · ${s.host}:${s.port}${s.core_title?' · '+s.core_title:''}`;$('#currentPing').textContent=s.latency_ms==null?'—':s.latency_ms+' мс';renderQuick()}
 async function refreshCorePlans(){if(!invoke||!servers.length)return;try{let result=await invoke('plan_cores',{servers:servers.map(s=>({id:s.id,name:s.name,protocol:s.protocol,host:s.host,port:s.port,uri:s.uri,latency_ms:s.latency_ms??null})),preference:protection.core_preference||'auto'});(result.plans||[]).forEach((plan,index)=>{let s=servers[index];if(!s)return;s.core_supported=plan.supported;s.core_title=plan.supported?plan.core_title:'';s.core_protocol=plan.protocol||s.core_protocol;s.core_transport=plan.transport||'';s.core_reason=plan.reason||''});renderAll()}catch(e){log('ERROR','Подбор ядра: '+String(e))}}
-async function chooseServer(index,connectNow=false){
+async function chooseServer(index,connectNow=false,applyProfile=false){
  if(!servers[index])return;
  if(serverSwitching||$('#connectBtn').disabled)return toast('Переключение уже выполняется');
  const previous=selected,target=servers[index];
  if(!target.uri)return toast('У выбранного сервера нет URI');
  if(target.core_supported===false)return toast(target.core_reason||'Ни одно ядро не поддерживает этот сервер');
  selected=index;localStorage.selectedServer=index;renderAll();
- if(connected&&activeServer?.id===target.id)return;
+ if(!applyProfile&&connected&&activeServer?.id===target.id)return;
  if(!connected){
   if(!connectNow)return toast('Сервер выбран');
   pendingServerId=target.id;
   return $('#connectBtn').onclick();
  }
- serverSwitching=true;pendingServerId=target.id;
+ serverSwitching=true;pendingServerId=target.id;pendingMode=applyProfile?activeMode:null;
  const b=$('#connectBtn');b.disabled=true;b.textContent='Переключение…';showConnBanner('Переключение на '+target.name+'…');
  try{
   manualDisconnect=true;
@@ -262,7 +377,7 @@ async function chooseServer(index,connectNow=false){
   $('#sessionTime').textContent='00:00:00';$('#downloaded').textContent='—';$('#uploaded').textContent='—';$('#metricIp').textContent='—';
   log('INFO','Переключение на сервер: '+target.name);
  }catch(e){
-  pendingServerId=null;selected=previous;localStorage.selectedServer=previous;renderAll();
+  pendingServerId=null;pendingMode=null;selected=previous;localStorage.selectedServer=previous;renderAll();
   hideConnBanner();toast('Не удалось переключить сервер: '+String(e));log('ERROR','Переключение сервера: '+String(e));return;
  }finally{
   manualDisconnect=false;serverSwitching=false;b.disabled=false;b.textContent=connected?'Отключиться':'Подключиться';
@@ -270,10 +385,10 @@ async function chooseServer(index,connectNow=false){
  if(!connected)await $('#connectBtn').onclick();
 }
 let pingProgress='',quickPinging=false;function renderQuick(pinging){let box=$('#quickList');if(!box)return;if(!servers.length){box.innerHTML='<div class="cell-sub">Нет серверов</div>';return}let favs=servers.filter(x=>x.fav).sort((a,b)=>(a.latency_ms??9e9)-(b.latency_ms??9e9)).slice(0,5);let rest=servers.filter(x=>!x.fav&&x.latency_ms!=null).sort((a,b)=>a.latency_ms-b.latency_ms);let items=[...favs,...rest].slice(0,5);if(!items.length){box.innerHTML='<div class="cell-sub">'+(pinging?'Проверка задержки серверов… '+pingProgress:'Нажмите «Пинг» на вкладке «Серверы»')+'</div>';return}box.innerHTML=items.map(x=>{let idx=servers.indexOf(x);return `<div class="quick-item${idx===selected?' sel':''}" data-q="${idx}"><div class="flag" style="width:30px;height:21px" title="${countryName(x.cc)}">${flag(x.cc)}</div><div class="grow"><b>${esc(x.name)}</b><small>${protocolLabel(x)}</small></div>${x.fav?'<span class="qstar" title="Избранное">★</span>':''}<span class="latency">${x.latency_ms==null?'…':x.latency_ms+' мс'}</span></div>`}).join('')}let pingBatch=null;
-function fastPingAll(){
+function fastPingAll(batch=servers){
   if(!invoke||!servers.length)return Promise.resolve(false);
   if(pingBatch)return pingBatch;
-  const batch=servers.slice();
+  if(!batch.length)return Promise.resolve(false);
   quickPinging=true;
   renderQuick(true);
   pingBatch=(async()=>{
@@ -302,28 +417,157 @@ function fastPingAll(){
   })();
   return pingBatch;
 }
-renderAll();refreshCorePlans();fastPingAll();$('#quickList').onclick=e=>{let item=e.target.closest('.quick-item');if(!item)return;let idx=+item.dataset.q;if(servers[idx]){chooseServer(idx)}};
-$('#serverSearch').oninput=renderServers;$('#serverSort').value=localStorage.serverSort||'source';$('#serverSort').onchange=e=>{localStorage.serverSort=e.target.value;renderServers()};$$('#protoFilter button').forEach(b=>b.onclick=()=>{$$('#protoFilter button').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;renderServers()});$('#fastest').onclick=()=>{if(!servers.length)return toast('Нет серверов');let best=-1;servers.forEach((s,i)=>{if(s.latency_ms==null||s.core_supported===false)return;if(best<0||s.latency_ms<servers[best].latency_ms)best=i});if(best<0)return toast('Сначала нажмите «Пинг»');chooseServer(best)};$('#pingAll').onclick=async()=>{let b=$('#pingAll');if(b.disabled)return;if(!servers.length)return toast('Нет серверов для проверки');if(!invoke)return toast('Backend недоступен');b.disabled=true;b.textContent='Пинг…';const ok=await fastPingAll();b.disabled=false;b.textContent='Пинг';toast(ok?'Пинг завершён':'Не удалось измерить задержку. Подробности в журнале')};
+renderAll();refreshCorePlans();$('#quickList').onclick=e=>{let item=e.target.closest('.quick-item');if(!item)return;let idx=+item.dataset.q;if(servers[idx]){chooseServer(idx)}};
+$('#serverSearch').oninput=renderServers;
+$('#pingCurrent').onclick=async()=>{
+  const server=activeServer;
+  if(!invoke||!connected||!server||currentPingPending)return;
+  const button=$('#pingCurrent');
+  currentPingPending=true;
+  button.disabled=true;
+  button.textContent='Пинг…';
+  try{
+    const latency=await invoke('ping_server',{server:{...server,latency_ms:server.latency_ms??null}});
+    if(!connected||activeServer!==server)return;
+    server.latency_ms=latency;
+    for(const item of servers){
+      if(item.id===server.id&&item.host===server.host&&item.port===server.port)item.latency_ms=latency;
+    }
+    saveLatencyCache();
+  }catch(error){
+    if(connected&&activeServer===server)toast('Не удалось измерить задержку');
+    log('ERROR','Пинг активного сервера: '+String(error));
+  }finally{
+    currentPingPending=false;
+    button.textContent='Пинг';
+    renderAll();
+  }
+};
+function renderServerSort(){
+  $$('[data-sort-server]').forEach(button=>{
+    const active=button.dataset.sortServer===serverOrder.key;
+    button.setAttribute('aria-pressed',String(active));
+    button.textContent=button.textContent.replace(/ [↑↓]$/,'')+(active?(serverOrder.desc?' ↓':' ↑'):'');
+  });
+}
+$$('[data-sort-server]').forEach(button=>button.onclick=()=>{
+  const key=button.dataset.sortServer;
+  serverOrder.desc=serverOrder.key===key?!serverOrder.desc:false;
+  serverOrder.key=key;
+  localStorage.serverColumnSort=JSON.stringify(serverOrder);
+  renderServerSort();renderServers();
+});
+renderServerSort();
+$$('#protoFilter button').forEach(button=>button.onclick=()=>{
+  $$('#protoFilter button').forEach(item=>item.classList.toggle('active',item===button));
+  filter=button.dataset.filter;renderServers();
+});
+$('#pingAll').onclick=async()=>{
+  const button=$('#pingAll');
+  if(button.disabled)return;
+  if(!servers.length)return toast('Нет серверов для проверки');
+  if(!invoke)return toast('Backend недоступен');
+  const batch=serverPingTargets($$('#serverRows .srow'));
+  if(!batch.length)return toast('Нет серверов в текущем списке');
+  button.disabled=true;button.textContent='Пинг…';
+  if(pingBatch)await pingBatch;
+  const ok=await fastPingAll(batch);
+  button.disabled=false;markServerSelection();
+  toast(ok?'Пинг завершён: '+batch.length:'Не удалось измерить задержку. Подробности в журнале');
+};
 function selectedRoutingProfile(){return routingState.split?routingState.profile:"custom"}
 function renderRoutingProfile(){
   $$('.route-profile').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.routeProfile===routingState.profile)));
   $('#routeProfileStatus').textContent=routingState.split?'':'Раздельное туннелирование выключено';
 }
-$$('.route-profile').forEach(button=>button.onclick=()=>{
+$$('.route-profile').forEach(button=>button.onclick=async()=>{
+  if($('#connectBtn').disabled)return toast('Дождитесь завершения подключения');
+  const serverIndex=connected?servers.findIndex(server=>server.id===activeServer?.id):-1;
+  if(connected&&serverIndex<0)return toast('Активный сервер больше не в списке');
   if(routingState.profile===button.dataset.routeProfile&&routingState.split)return;
   routingState.profile=button.dataset.routeProfile;
   routingState.split=true;
   localStorage.routingState=JSON.stringify(routingState);
   renderRouting();
-  if(connected||$('#connectBtn').disabled)toast('Профиль применится при следующем подключении');
+  if(connected)await chooseServer(serverIndex,true,true);
 });
-function renderRouting(){renderRoutingProfile();$$('[data-setting=split]').forEach(x=>x.classList.toggle('on',routingState.split));$$('[data-setting=lan]').forEach(x=>x.classList.toggle('on',protection.allow_lan))}$$('[data-setting=split]').forEach(x=>x.onclick=()=>{routingState.split=!routingState.split;localStorage.routingState=JSON.stringify(routingState);renderRouting()});$$('[data-setting=lan]').forEach(x=>x.onclick=()=>{protection.allow_lan=!protection.allow_lan;saveProtection();renderRouting()});function saveProtection(){localStorage.protection=JSON.stringify(protection);renderProtection()}function renderProtection(){$$('[data-protection]').forEach(x=>x.classList.toggle('on',!!protection[x.dataset.protection]));if($('#dnsPreset'))$('#dnsPreset').value=protection.dns_preset;if($('#corePreference'))$('#corePreference').value=protection.core_preference||'auto';if($('#killSwitchMode'))$('#killSwitchMode').value=protection.kill_switch_mode||'session';if($('#dnsMode'))$('#dnsMode').value=protection.dns_mode||'split';if($('#ipv6Mode'))$('#ipv6Mode').value=protection.ipv6_mode||'block'}$$('[data-protection]').forEach(x=>x.onclick=()=>{protection[x.dataset.protection]=!protection[x.dataset.protection];saveProtection()});if($('#dnsPreset'))$('#dnsPreset').onchange=e=>{protection.dns_preset=e.target.value;$('#dnsValue').textContent=e.target.options[e.target.selectedIndex].text;saveProtection()};if($('#corePreference'))$('#corePreference').onchange=e=>{protection.core_preference=e.target.value;saveProtection();refreshCorePlans();toast('Ядро: '+e.target.options[e.target.selectedIndex].text)};if($('#killSwitchMode'))$('#killSwitchMode').onchange=e=>{protection.kill_switch_mode=e.target.value;saveProtection()};if($('#dnsMode'))$('#dnsMode').onchange=e=>{protection.dns_mode=e.target.value;saveProtection()};if($('#ipv6Mode'))$('#ipv6Mode').onchange=e=>{protection.ipv6_mode=e.target.value;saveProtection()};renderProtection();renderRouting();function dnsAddress(){return protection.dns_preset==='google'?'https:'+'//8.8.8.8/dns-query':protection.dns_preset==='quad9'?'https:'+'//9.9.9.9/dns-query':protection.dns_preset==='system'?'local':'https:'+'//1.1.1.1/dns-query'}$$('[data-mode]').forEach(b=>b.onclick=()=>{$$('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');localStorage.tunnelMode=b.dataset.mode});(()=>{let saved=localStorage.tunnelMode;if(saved)$$('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===saved))})();let balanceCursor=Number(localStorage.balanceCursor||0);if(!Number.isFinite(balanceCursor))balanceCursor=0;function serverForStrategy(){if(!servers.length)throw Error('Сначала добавьте подписку');let strategy=$('#groupMode')?.value||'select',available=servers.filter(x=>!x.unavailable&&x.latency_ms!=null&&x.core_supported!==false);if(!available.length)available=servers.filter(x=>x.core_supported!==false);if(!available.length)available=servers;if(strategy==='urltest')return available.reduce((a,b)=>(b.latency_ms??99999)<(a.latency_ms??99999)?b:a,available[0]);if(strategy==='fallback')return available[0];if(strategy==='balance'){let s=available[balanceCursor%available.length];balanceCursor++;localStorage.balanceCursor=balanceCursor;return s}return servers[selected]||available[0]}$('#groupMode').value=localStorage.groupMode||'select';$('#groupMode').onchange=e=>{localStorage.groupMode=e.target.value;toast('Стратегия: '+e.target.options[e.target.selectedIndex].text)};function showConnBanner(t){let n=$('#connBanner');if(!n)return;$('#connBannerText').textContent=t;n.classList.add('show')}function hideConnBanner(){let n=$('#connBanner');if(n)n.classList.remove('show')}const STAGE_TEXTS={prepare:'Подготовка…',bridge:'Запуск ядра-моста…',config:'Сбор��а конфигурации…',check:'Проверка конфигурации…',start:'Запуск sing-box…',tun:'Поднятие TUN-интерфейса…',verify:'Проверка соединения…',protect:'Применение Kill Switch…',ready:'Завершение…'};if(window.__TAURI__&&window.__TAURI__.event){window.__TAURI__.event.listen('ping-progress',e=>{let p=e.payload||{};pingProgress=(p.done||0)+'/'+(p.total||0);let b=$('#pingAll');if(b&&b.disabled)b.textContent='Пинг '+pingProgress});window.__TAURI__.event.listen('connect-stage',e=>{let p=e.payload,stage=typeof p==='string'?p:p?.stage;if(p?.exit_ip){$('#publicIp').textContent=p.exit_ip;$('#metricIp').textContent=p.exit_ip}let t=STAGE_TEXTS[stage];if(t)showConnBanner(t)})}$('#connectBtn').onclick=async()=>{let b=$('#connectBtn');if(b.disabled)return;b.disabled=true;b.textContent=connected?'Отключение…':'Подключение…';showConnBanner(connected?'Отключение…':'Подключение…');try{let s=connected?null:(pendingServerId?servers.find(x=>x.id===pendingServerId):serverForStrategy());pendingServerId=null;if(connected){manualDisconnect=true;if(invoke)await invoke('disconnect');connected=false;activeServer=null;clearInterval(timer);timer=null;stopStats();$('#sessionTime').textContent='00:00:00';$('#downloaded').textContent='—';$('#uploaded').textContent='—';refreshExternalIp();b.textContent='Подключиться';b.classList.remove('on');$('#statusDot').classList.remove('on');$('#stateText').textContent='Не подключено';log('INFO','VPN отключён');hideConnBanner()}else{manualDisconnect=false;if(!s?.uri)throw Error('Для подключения импортируйте реальную подписку');activeServer=s;let mode=$('[data-mode].active').dataset.mode;if(s.core_supported===false)throw Error(s.core_reason||'Ни одно ядро не поддерживает этот сервер');if(!invoke)throw Error('Backend недоступен');await invoke('connect',{request:{server:s,mode,core_preference:protection.core_preference||'auto',kill_switch_mode:protection.kill_switch_mode||'session',allow_lan:protection.allow_lan,dns:dnsAddress(),dns_mode:protection.dns_mode||'split',ipv6_mode:protection.ipv6_mode||'block',strict_route:protection.strict_route,secure_dns:protection.secure_dns,dns_hijack:protection.dns_hijack,sniff:protection.sniff,ipv6:protection.ipv6,block_quic:protection.block_quic,cache_enabled:protection.cache_enabled,routing_profile:selectedRoutingProfile(),rules:routingState.split?activeRouteRules():[]}});connected=true;reconnectAttempt=0;b.textContent='Отключиться';b.classList.add('on');$('#statusDot').classList.add('on');$('#stateText').textContent='Подключено';let t=0;$('#downloaded').textContent='0 Б';$('#uploaded').textContent='0 Б';$('#metricIp').textContent='Определяю…';clearInterval(timer);timer=setInterval(()=>{$('#sessionTime').textContent=fmtDur(++t)},1000);startStats();hideConnBanner();refreshExternalIp();log('INFO',`Подключено: ${s.name} · ${mode.toUpperCase()} · ядро ${s.core_title||(protection.core_preference==='auto'?'авто':protection.core_preference)}`)}toast(connected?'VPN подключён':'VPN отключён')}catch(e){hideConnBanner();toast(String(e));log('ERROR',String(e))}finally{b.disabled=false;b.textContent=connected?'Отключиться':'Подключиться';renderAll()}};
+function renderRouting(){renderRoutingProfile();$$('[data-setting=split]').forEach(x=>x.classList.toggle('on',routingState.split));$$('[data-setting=lan]').forEach(x=>x.classList.toggle('on',protection.allow_lan))}$$('[data-setting=split]').forEach(x=>x.onclick=()=>{routingState.split=!routingState.split;localStorage.routingState=JSON.stringify(routingState);renderRouting()});$$('[data-setting=lan]').forEach(x=>x.onclick=()=>{protection.allow_lan=!protection.allow_lan;saveProtection();renderRouting()});function saveProtection(){localStorage.protection=JSON.stringify(protection);renderProtection()}function renderProtection(){$$('[data-protection]').forEach(x=>x.classList.toggle('on',!!protection[x.dataset.protection]));if($('#dnsPreset'))$('#dnsPreset').value=protection.dns_preset;if($('#corePreference'))$('#corePreference').value=protection.core_preference||'auto';if($('#killSwitchMode'))$('#killSwitchMode').value=protection.kill_switch_mode||'session';if($('#dnsMode'))$('#dnsMode').value=protection.dns_mode||'split';if($('#ipv6Mode'))$('#ipv6Mode').value=protection.ipv6_mode||'block'}$$('[data-protection]').forEach(x=>x.onclick=()=>{protection[x.dataset.protection]=!protection[x.dataset.protection];saveProtection()});if($('#dnsPreset'))$('#dnsPreset').onchange=e=>{protection.dns_preset=e.target.value;$('#dnsValue').textContent=e.target.options[e.target.selectedIndex].text;saveProtection()};if($('#corePreference'))$('#corePreference').onchange=e=>{protection.core_preference=e.target.value;saveProtection();refreshCorePlans();toast('Ядро: '+e.target.options[e.target.selectedIndex].text)};if($('#killSwitchMode'))$('#killSwitchMode').onchange=e=>{protection.kill_switch_mode=e.target.value;saveProtection()};if($('#dnsMode'))$('#dnsMode').onchange=e=>{protection.dns_mode=e.target.value;saveProtection()};if($('#ipv6Mode'))$('#ipv6Mode').onchange=e=>{protection.ipv6_mode=e.target.value;saveProtection()};renderProtection();renderRouting();function dnsAddress(){return protection.dns_preset==='google'?'https:'+'//8.8.8.8/dns-query':protection.dns_preset==='quad9'?'https:'+'//9.9.9.9/dns-query':protection.dns_preset==='system'?'local':'https:'+'//1.1.1.1/dns-query'}$$('[data-mode]').forEach(b=>b.onclick=()=>{$$('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');localStorage.tunnelMode=b.dataset.mode});(()=>{let saved=localStorage.tunnelMode;if(saved)$$('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===saved))})();function selectedServer(){const server=servers[selected]||servers[0];if(!server)throw Error('Сначала добавьте подписку');return server}
+function vpnNotificationsEnabled(){
+  return localStorage.vpnNotificationsEnabled!=='false';
+}
+function notifyVpn(lost,server){
+  if(invoke&&vpnNotificationsEnabled())invoke('vpn_notice',{lost,server:server?.name||''}).catch(error=>log('ERROR','Уведомление Windows: '+String(error)));
+}
+function showConnBanner(t){let n=$('#connBanner');if(!n)return;$('#connBannerText').textContent=t;n.classList.add('show')}function hideConnBanner(){let n=$('#connBanner');if(n)n.classList.remove('show')}const STAGE_TEXTS={prepare:'Подготовка…',bridge:'Запуск ядра-моста…',config:'Сбор��а конфигурации…',check:'Проверка конфигурации…',start:'Запуск sing-box…',tun:'Поднятие TUN-интерфейса…',verify:'Проверка соединения…',protect:'Применение Kill Switch…',ready:'Завершение…'};if(window.__TAURI__&&window.__TAURI__.event){window.__TAURI__.event.listen('ping-progress',e=>{let p=e.payload||{};pingProgress=(p.done||0)+'/'+(p.total||0);let b=$('#pingAll');if(b&&b.disabled)b.textContent='Пинг '+pingProgress});window.__TAURI__.event.listen('connect-stage',e=>{let p=e.payload,stage=typeof p==='string'?p:p?.stage;if(p?.exit_ip){$('#publicIp').textContent=p.exit_ip;$('#metricIp').textContent=p.exit_ip}let t=STAGE_TEXTS[stage];if(t)showConnBanner(t)})}$('#connectBtn').onclick=async()=>{let b=$('#connectBtn');if(b.disabled)return;b.disabled=true;b.textContent=connected?'Отключение…':'Подключение…';showConnBanner(connected?'Отключение…':'Подключение…');try{let s=connected?null:(pendingServerId?servers.find(x=>x.id===pendingServerId):selectedServer());pendingServerId=null;if(connected){manualDisconnect=true;const disconnectedServer=activeServer;if(invoke)await invoke('disconnect');notifyVpn(false,disconnectedServer);connected=false;activeServer=null;clearInterval(timer);timer=null;stopStats();$('#sessionTime').textContent='00:00:00';$('#downloaded').textContent='—';$('#uploaded').textContent='—';refreshExternalIp();b.textContent='Подключиться';b.classList.remove('on');$('#statusDot').classList.remove('on');$('#stateText').textContent='Не подключено';log('INFO','VPN отключён');hideConnBanner()}else{manualDisconnect=false;if(!s?.uri)throw Error('Для подключения импортируйте реальную подписку');activeServer=s;let mode=pendingMode||$('[data-mode].active').dataset.mode;pendingMode=null;if(s.core_supported===false)throw Error(s.core_reason||'Ни одно ядро не поддерживает этот сервер');if(!invoke)throw Error('Backend недоступен');await invoke('connect',{request:{server:s,mode,core_preference:protection.core_preference||'auto',kill_switch_mode:protection.kill_switch_mode||'session',allow_lan:protection.allow_lan,dns:dnsAddress(),dns_mode:protection.dns_mode||'split',ipv6_mode:protection.ipv6_mode||'block',strict_route:protection.strict_route,secure_dns:protection.secure_dns,dns_hijack:protection.dns_hijack,sniff:protection.sniff,ipv6:protection.ipv6,block_quic:protection.block_quic,cache_enabled:protection.cache_enabled,routing_profile:selectedRoutingProfile(),rules:routingState.split?activeRouteRules():[]}});connected=true;activeMode=mode;reconnectAttempt=0;b.textContent='Отключиться';b.classList.add('on');$('#statusDot').classList.add('on');$('#stateText').textContent='Подключено';let t=0;$('#downloaded').textContent='0 Б';$('#uploaded').textContent='0 Б';$('#metricIp').textContent='Определяю…';clearInterval(timer);timer=setInterval(()=>{$('#sessionTime').textContent=fmtDur(++t)},1000);startStats();hideConnBanner();refreshExternalIp();log('INFO',`Подключено: ${s.name} · ${mode.toUpperCase()} · ядро ${s.core_title||(protection.core_preference==='auto'?'авто':protection.core_preference)}`)}toast(connected?'VPN подключён':'VPN отключён')}catch(e){hideConnBanner();toast(String(e));log('ERROR',String(e))}finally{pendingMode=null;b.disabled=false;b.textContent=connected?'Отключиться':'Подключиться';renderAll()}};
 
 function fmtDur(t){let h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0')}
-let statsTimer=null,statsFails=0;
-function startStats(){stopStats();statsFails=0;statsTimer=setInterval(async()=>{if(!invoke)return;try{let r=await invoke('traffic_stats');statsFails=0;$('#downloaded').textContent=formatBytes(r.download);$('#uploaded').textContent=formatBytes(r.upload)}catch{if(++statsFails>=3){stopStats();$('#downloaded').textContent='—';$('#uploaded').textContent='—'}}},2000)}
-function stopStats(){if(statsTimer){clearInterval(statsTimer);statsTimer=null}}
+let trafficTotals=asObject(readJson('trafficTotals',{}));
+const trafficValue=value=>Number.isSafeInteger(value)&&value>=0?value:0;
+let statsSession=null,lastTrafficSave=0;
+function updateTrafficTotal(){
+  $('#trafficTotal').textContent='Всего получено '+formatBytes(trafficValue(trafficTotals.download))+' · отправлено '+formatBytes(trafficValue(trafficTotals.upload));
+}
+function saveTrafficTotals(){
+  try{localStorage.trafficTotals=JSON.stringify(trafficTotals)}catch(error){log('ERROR','Сохранение трафика: '+String(error))}
+  lastTrafficSave=Date.now();
+}
+updateTrafficTotal();
+function startStats(){
+  stopStats();
+  const subscriptionId=activeServer?.subscriptionId;
+  trafficTotals.subscriptions=asObject(trafficTotals.subscriptions);
+  const totals=subscriptionId?asObject(trafficTotals.subscriptions[subscriptionId]):null;
+  const session={upload:0,download:0,timer:null,dirty:false};
+  statsSession=session;
+  const poll=async()=>{
+    try{
+      const reading=await invoke('traffic_stats');
+      if(statsSession!==session)return;
+      for(const key of ['upload','download']){
+        const next=Math.max(session[key],trafficValue(reading[key]));
+        const delta=next-session[key];
+        if(delta){
+          trafficTotals[key]=trafficValue(trafficTotals[key])+delta;
+          if(totals){
+            totals[key]=trafficValue(totals[key])+delta;
+            trafficTotals.subscriptions[subscriptionId]=totals;
+          }
+          session.dirty=true;
+        }
+        session[key]=next;
+      }
+      $('#downloaded').textContent=formatBytes(session.download);
+      $('#uploaded').textContent=formatBytes(session.upload);
+      updateTrafficTotal();
+      if(totals)updateSubscriptionTraffic();
+      if(session.dirty&&Date.now()-lastTrafficSave>=15000){saveTrafficTotals();session.dirty=false;}
+    }catch{
+      if(statsSession!==session)return;
+      if(!session.download&&!session.upload){$('#downloaded').textContent='—';$('#uploaded').textContent='—';}
+    }
+    if(statsSession===session)session.timer=setTimeout(poll,document.hidden?10000:3000);
+  };
+  poll();
+}
+function stopStats(){
+  if(!statsSession)return;
+  clearTimeout(statsSession.timer);
+  if(statsSession.dirty)saveTrafficTotals();
+  statsSession=null;
+}
+window.addEventListener('pagehide',stopStats);
 async function refreshExternalIp(){let pill=$('#publicIp'),dot=$('#ipDot');if(!invoke){pill.textContent='Недоступно';return}pill.textContent='Определяю…';dot.className='online-dot checking';try{let ip=await invoke('external_ip');pill.textContent=ip;$('#metricIp').textContent=ip;dot.className='online-dot'}catch{pill.textContent='Нет сети';dot.className='online-dot bad';$('#metricIp').textContent='—'}}
+const notificationSwitch=$('#vpnNotifications');
+function renderNotificationSwitch(){
+  const enabled=vpnNotificationsEnabled();
+  notificationSwitch.setAttribute('aria-checked',String(enabled));
+  notificationSwitch.classList.toggle('on',enabled);
+}
+notificationSwitch.onclick=()=>{
+  localStorage.vpnNotificationsEnabled=String(!vpnNotificationsEnabled());
+  renderNotificationSwitch();
+};
+renderNotificationSwitch();
 const adminSwitch=$('#alwaysAdmin');
 function renderAdminSwitch(enabled){
   adminSwitch.setAttribute('aria-checked',String(enabled));
@@ -355,10 +599,40 @@ function renderAutoUpdate(){$$('[data-setting=autoupdate]').forEach(x=>x.classLi
 function formatBytes(value){if(value==null)return'—';let units=['Б','КБ','МБ','ГБ','ТБ'],n=Number(value),i=0;while(n>=1024&&i<units.length-1){n/=1024;i++}return`${n.toFixed(i<2?0:1)} ${units[i]}`}
 function formatExpiry(value){if(!value)return'Не указано';return new Date(Number(value)*1000).toLocaleDateString('ru-RU')}
 function persistSubscriptions(){fullSubscriptions=asArray(fullSubscriptions).map(x=>({...asObject(x),servers:asArray(x.servers),rules:asArray(x.rules),history:asArray(x.history)}));localStorage.fullSubscriptions=JSON.stringify(fullSubscriptions)}
-function rebuildMerged(){fullSubscriptions=asArray(fullSubscriptions).map(asObject);activeSubscriptions=fullSubscriptions.filter(x=>x.enabled!==false).sort((a,b)=>(b.priority||0)-(a.priority||0));providerRules=activeSubscriptions.flatMap(x=>asArray(x.rules));providerRuleCount=activeSubscriptions.reduce((n,x)=>n+(Number(x.rule_count)||0),0);servers=activeSubscriptions.flatMap(x=>asArray(x.servers).map(server=>({...server,sub:x.name||'Моя подписка',cc:country(server.name,server.host),loss:server.loss||0,fav:server.fav||false})));selected=servers.length?Math.max(0,Math.min(selected,servers.length-1)):0;applyLatencyCache();renderAll()}
+function rebuildMerged(){fullSubscriptions=asArray(fullSubscriptions).map(asObject);activeSubscriptions=fullSubscriptions.filter(x=>x.enabled!==false).sort((a,b)=>(b.priority||0)-(a.priority||0));providerRules=activeSubscriptions.flatMap(x=>asArray(x.rules));providerRuleCount=activeSubscriptions.reduce((n,x)=>n+(Number(x.rule_count)||0),0);servers=activeSubscriptions.flatMap(x=>asArray(x.servers).map(server=>({...server,sub:x.name||'Моя подписка',subscriptionId:x.id,cc:country(server.name,server.host),loss:server.loss||0,fav:server.fav||false})));selected=servers.length?Math.max(0,Math.min(selected,servers.length-1)):0;applyLatencyCache();renderAll();renderRules()}
 function subscriptionRows(){return fullSubscriptions}
-function renderSubs(){let list=subscriptionRows();$('#subList').innerHTML=list.length?list.map((s,i)=>{let used=(s.upload_bytes||0)+(s.download_bytes||0),total=s.total_bytes,percent=total?Math.min(100,used/total*100):0,last=s.updated_at?new Date(s.updated_at*1000).toLocaleString('ru-RU'):'никогда',history=asArray(s.history)[0];return`<div class="subrow" style="opacity:${s.enabled===false?.58:1}"><i class="sub-accent" style="background:${s.enabled===false?'var(--muted)':'var(--green)'}"></i><div><h3>${esc(s.name)}</h3><p>${s.servers?.length??s.servers} серверов · ${s.rule_count??asArray(s.rules).length} правил · обновлена ${last}</p>${history?`<p class="history" title="Что изменилось при последнем обновлении подписки">Последнее обновление: серверов +${history.added} / −${history.removed} · правил изменилось: ${history.rulesChanged}</p>`:''}</div><div><span class="cell-sub">Трафик</span><b style="display:block;font-size:12px">${total?formatBytes(used)+' из '+formatBytes(total):'Нет данных'}</b><div class="usage"><i style="width:${percent}%"></i></div></div><div><span class="cell-sub">Действует до</span><b style="display:block;font-size:12px">${formatExpiry(s.expires_at)}</b></div><div><span class="cell-sub">Автообновление</span><select class="btn sub-int" data-interval="${i}" title="Как часто подписка обновляется автоматически"><option value="0">Выключено</option><option value="15">Каждые 15 минут</option><option value="60">Каждый час</option><option value="360">Каждые 6 часов</option><option value="1440">Раз в сутки</option></select></div><div class="sub-act"><button class="btn" data-toggle="${i}">${s.enabled===false?'Включить':'Активна'}</button><button class="btn" data-refresh="${i}">Обновить</button><button class="btn icon-btn" data-priority="${i}" title="Повысить приоритет">↑</button><button class="btn icon-btn danger" data-remove="${i}" title="Удалить подписку">×</button></div></div>`}).join(''):'<div class="empty">Подписок пока нет. Нажмите «Добавить подписку», чтобы импортировать серверы</div>';$$('[data-interval]').forEach(el=>{let s=list[+el.dataset.interval];el.value=String(s.update_interval_minutes??60);el.onchange=()=>{s.update_interval_minutes=+el.value;persistSubscriptions()}});$$('[data-toggle]').forEach(b=>b.onclick=()=>{let s=list[+b.dataset.toggle];s.enabled=s.enabled===false;persistSubscriptions();rebuildMerged();renderSubs()});$$('[data-priority]').forEach(b=>b.onclick=()=>{let s=list[+b.dataset.priority];s.priority=(s.priority||0)+1;persistSubscriptions();rebuildMerged();renderSubs();toast('Приоритет повышен')});$$('[data-remove]').forEach(b=>b.onclick=()=>{let i=+b.dataset.remove;fullSubscriptions.splice(i,1);persistSubscriptions();rebuildMerged();renderSubs()});$$('[data-refresh]').forEach(b=>b.onclick=()=>refreshSubscription(+b.dataset.refresh))}
-async function refreshSubscription(index,silent=false){let current=fullSubscriptions[index];if(!current||!invoke){if(!silent)toast('Обновление доступно в нативном приложении');return}try{let fresh=await invoke('import_subscription',{url:current.url,name:current.name});let oldIds=new Set((current.servers||[]).map(x=>x.id)),newIds=new Set((fresh.servers||[]).map(x=>x.id));let change={at:Date.now(),added:[...newIds].filter(x=>!oldIds.has(x)).length,removed:[...oldIds].filter(x=>!newIds.has(x)).length,rulesChanged:Math.abs((fresh.rule_count||0)-(current.rule_count||0))};fresh.enabled=current.enabled!==false;fresh.priority=current.priority||0;fresh.update_interval_minutes=current.update_interval_minutes??60;fresh.update_on_start=current.update_on_start!==false;fresh.history=[change,...(current.history||[])].slice(0,20);fresh.previous={servers:current.servers,rules:current.rules,rule_count:current.rule_count};fullSubscriptions[index]=fresh;persistSubscriptions();rebuildMerged();renderSubs();if(!silent)toast(`Обновлено: +${change.added}, −${change.removed}, Δ правил ${change.rulesChanged}`)}catch(e){if(!silent)toast('Ошибка обновления: '+String(e))}}
+let subscriptionToRename=null;
+$('#subList').addEventListener('click',event=>{
+  const button=event.target.closest('[data-sub-rename]');
+  if(!button)return;
+  const sub=fullSubscriptions[+button.dataset.subRename];
+  if(!sub)return;
+  subscriptionToRename={id:sub.id,url:sub.url};
+  const input=$('#renameSubName');
+  input.value=sub.name;
+  $('#renameSubModal').classList.add('show');
+  input.focus();input.select();
+});
+$('#renameSubForm').onsubmit=event=>{
+  event.preventDefault();
+  const name=$('#renameSubName').value.trim();
+  if(!name)return toast('Введите название');
+  const sub=fullSubscriptions.find(item=>item.id===subscriptionToRename?.id&&item.url===subscriptionToRename?.url);
+  if(!sub)return toast('Подписка больше не в списке');
+  sub.name=name;
+  persistSubscriptions();rebuildMerged();renderSubs();
+  $('#renameSubModal').classList.remove('show');
+};
+function updateSubscriptionTraffic(){
+  const counters=asObject(trafficTotals.subscriptions);
+  $$('#subList [data-local-traffic]').forEach(element=>{
+    const totals=asObject(counters[element.dataset.localTraffic]);
+    const text='На этом ПК: ↓ '+formatBytes(trafficValue(totals.download))+' · ↑ '+formatBytes(trafficValue(totals.upload));
+    if(element.textContent!==text)element.textContent=text;
+  });
+}
+function renderSubs(){let list=subscriptionRows();$('#subList').innerHTML=list.length?list.map((s,i)=>{let used=(s.upload_bytes||0)+(s.download_bytes||0),total=s.total_bytes,percent=total?Math.min(100,used/total*100):0,last=s.updated_at?new Date(s.updated_at*1000).toLocaleString('ru-RU'):'никогда',history=asArray(s.history)[0];return`<div class="subrow" style="opacity:${s.enabled===false?.58:1}"><i class="sub-accent" style="background:${s.enabled===false?'var(--muted)':'var(--green)'}"></i><div><div class="sub-heading"><h3>${esc(s.name)}</h3><button class="sub-rename" data-sub-rename="${i}" title="Переименовать подписку" aria-label="Переименовать подписку">✎</button></div><p>${s.servers?.length??s.servers} серверов · ${s.rule_count??asArray(s.rules).length} правил · обновлена ${last}</p>${history?`<p class="history" title="Что изменилось при последнем обновлении подписки">Последнее обновление: серверов +${history.added} / −${history.removed} · правил изменилось: ${history.rulesChanged}</p>`:''}</div><div class="sub-traffic"><span class="cell-sub">Трафик</span><b style="display:block;font-size:12px">${total?formatBytes(used)+' из '+formatBytes(total) :s.upload_bytes!=null||s.download_bytes!=null?formatBytes(used)+' у провайдера':''}</b>${total?`<div class="usage"><i style="width:${percent}%"></i></div>`:'' }<small data-local-traffic="${esc(s.id)}"></small></div><div><span class="cell-sub">Действует до</span><b style="display:block;font-size:12px">${formatExpiry(s.expires_at)}</b></div><div><span class="cell-sub">Автообновление</span><select class="btn sub-int" data-interval="${i}" title="Как часто подписка обновляется автоматически"><option value="0">Выключено</option><option value="15">Каждые 15 минут</option><option value="60">Каждый час</option><option value="360">Каждые 6 часов</option><option value="1440">Раз в сутки</option></select></div><div class="sub-act"><button class="btn" data-toggle="${i}">${s.enabled===false?'Включить':'Активна'}</button><button class="btn" data-refresh="${i}">Обновить</button><button class="btn icon-btn" data-priority="${i}" title="Повысить приоритет">↑</button><button class="btn icon-btn danger" data-remove="${i}" title="Удалить подписку">×</button></div></div>`}).join(''):'<div class="empty">Подписок пока нет. Нажмите «Добавить подписку», чтобы импортировать серверы</div>';$$('[data-interval]').forEach(el=>{let s=list[+el.dataset.interval];el.value=String(s.update_interval_minutes??60);el.onchange=()=>{s.update_interval_minutes=+el.value;persistSubscriptions()}});$$('[data-toggle]').forEach(b=>b.onclick=()=>{let s=list[+b.dataset.toggle];s.enabled=s.enabled===false;persistSubscriptions();rebuildMerged();renderSubs()});$$('[data-priority]').forEach(b=>b.onclick=()=>{let s=list[+b.dataset.priority];s.priority=(s.priority||0)+1;persistSubscriptions();rebuildMerged();renderSubs();toast('Приоритет повышен')});$$('[data-remove]').forEach(b=>b.onclick=()=>{let i=+b.dataset.remove;fullSubscriptions.splice(i,1);persistSubscriptions();rebuildMerged();renderSubs()});$$('[data-refresh]').forEach(b=>b.onclick=()=>refreshSubscription(+b.dataset.refresh));updateSubscriptionTraffic()}
+async function refreshSubscription(index,silent=false){let current=fullSubscriptions[index];if(!current||!invoke){if(!silent)toast('Обновление доступно в нативном приложении');return}try{let fresh=await invoke('import_subscription',{url:current.url,name:current.name});index=fullSubscriptions.findIndex(sub=>sub.id===current.id&&sub.url===current.url);if(index<0)return;current=fullSubscriptions[index];fresh.name=current.name;let oldIds=new Set((current.servers||[]).map(x=>x.id)),newIds=new Set((fresh.servers||[]).map(x=>x.id));let change={at:Date.now(),added:[...newIds].filter(x=>!oldIds.has(x)).length,removed:[...oldIds].filter(x=>!newIds.has(x)).length,rulesChanged:Math.abs((fresh.rule_count||0)-(current.rule_count||0))};fresh.enabled=current.enabled!==false;fresh.priority=current.priority||0;fresh.update_interval_minutes=current.update_interval_minutes??60;fresh.update_on_start=current.update_on_start!==false;fresh.history=[change,...(current.history||[])].slice(0,20);fresh.previous={servers:current.servers,rules:current.rules,rule_count:current.rule_count};fullSubscriptions[index]=fresh;persistSubscriptions();rebuildMerged();renderSubs();if(!silent)toast(`Обновлено: +${change.added}, −${change.removed}, Δ правил ${change.rulesChanged}`)}catch(e){if(!silent)toast('Ошибка обновления: '+String(e))}}
 renderSubs();
 async function acceptStartupSubscription(){
  if(!invoke)return;
@@ -383,21 +657,25 @@ if(localStorage.appRouteExamples!=='1'){
   localStorage.rules=JSON.stringify(rules);
   localStorage.appRouteExamples='1';
 }
-function expandedRuleRows(){
+function expandedRuleRows(includeProvider=providerRulesEnabled){
   const own=rules.map((rule,i)=>({kind:rule.kind||rule.type,value:rule.value,route:rule.route,source:rule.example?'Пример · '+rule.example:'Пользователь',enabled:rule.enabled!==false,userIndex:i}));
-  const provider=providerRulesEnabled?providerRules.map(rule=>({...rule,source:'Подписка'})):[];
+  const provider=includeProvider?providerRules.map(rule=>({...rule,source:'Подписка'})):[];
   return [...own,...provider];
 }
 function activeRouteRules(){
   return expandedRuleRows().filter(rule=>rule.enabled!==false).map(({kind,value,route})=>({kind,value,route}));
 }
+let showProviderRules=false;
 function renderRules(){
-  const query=($('#ruleSearch')?.value||'').toLowerCase();
   const all=expandedRuleRows();
-  const matching=all.filter(rule=>(rule.kind+' '+rule.value+' '+rule.route+' '+rule.source).toLowerCase().includes(query));
+  const providerButton=$('#showProviderRules');
+  providerButton.textContent=(showProviderRules?'Скрыть':'Показать')+' правила подписок ('+providerRules.length+')';
+  providerButton.setAttribute('aria-expanded',String(showProviderRules));
+  providerButton.hidden=!providerRules.length;
+  const visibleRules=expandedRuleRows(showProviderRules);
   $('#ruleTotal').textContent=all.reduce((count,rule)=>count+(rule.enabled===false?0:rule.value.split(',').length),0);
   const routeLabels={direct:'Напрямую',proxy:'Через VPN',block:'Блокировать'};
-  $('#rules').innerHTML=matching.slice(0,300).map(rule=>{
+  $('#rules').innerHTML=visibleRules.slice(0,300).map(rule=>{
     const value=rule.value.length>150?rule.value.slice(0,150)+'…':rule.value;
     const index=rule.userIndex;
     const actions=index==null?'':
@@ -408,7 +686,7 @@ function renderRules(){
       '<span class="cell-sub">'+esc(rule.kind)+'<br>'+esc(rule.source)+'</span><b>'+esc(value)+'</b>'+
       '<span class="rule-route route-'+esc(rule.route)+'">'+esc(routeLabels[rule.route]||rule.route)+'</span>'+
       '<div class="rule-actions">'+actions+'</div></div>';
-  }).join('')+(matching.length>300?'<p class="cell-sub">Показаны первые 300 совпадений</p>':'');
+  }).join('')+(visibleRules.length>300?'<p class="cell-sub">Показаны первые 300 правил</p>':'');
 }
 $('#rules').onclick=event=>{
   const button=event.target.closest('button');
@@ -422,7 +700,11 @@ $('#rules').onclick=event=>{
     if(connected)toast('Правило применится при следующем подключении');
   }
 };
-function saveRules(){localStorage.rules=JSON.stringify(rules);renderRules()}renderRules();$('#ruleSearch').oninput=renderRules;$('#toggleProvider').textContent='Provider: '+(providerRulesEnabled?'ON':'OFF');$('#toggleProvider').onclick=()=>{providerRulesEnabled=!providerRulesEnabled;localStorage.providerRulesEnabled=providerRulesEnabled;$('#toggleProvider').textContent='Provider: '+(providerRulesEnabled?'ON':'OFF');renderRules()};$('#analyzeRoute').onclick=async()=>{
+$('#showProviderRules').onclick=()=>{
+  showProviderRules=!showProviderRules;
+  renderRules();
+};
+function saveRules(){localStorage.rules=JSON.stringify(rules);renderRules()}renderRules();$('#toggleProvider').textContent='Применять правила подписок: '+(providerRulesEnabled?'вкл':'выкл');$('#toggleProvider').onclick=()=>{providerRulesEnabled=!providerRulesEnabled;localStorage.providerRulesEnabled=providerRulesEnabled;$('#toggleProvider').textContent='Применять правила подписок: '+(providerRulesEnabled?'вкл':'выкл');renderRules()};$('#analyzeRoute').onclick=async()=>{
   const target=$('#routeTarget').value.trim();
   if(!target)return toast('Введите домен или IP');
   if(!invoke)return toast('Backend недоступен');
@@ -470,7 +752,7 @@ $('#saveRule').onclick=()=>{
   toast(connected?'Сохранено. Применится при следующем подключении':editing?'Правило сохранено':'Правило добавлено');
 };
 function log(level,text){let time=new Date().toLocaleTimeString('ru-RU');$('#logs').innerHTML+=`<div>[${time}] <span style="color:${level==='ERROR'?'#ff626b':'#00c883'}">${level}</span> ${esc(text)}</div>`;$('#logs').scrollTop=$('#logs').scrollHeight}log('INFO','Twizz Tuneel запущен');if(invoke)invoke('core_status').then(v=>{$('#coreState').textContent=v;log('INFO',v)}).catch(e=>{$('#coreState').textContent='● Ошибка ядра';log('ERROR',String(e))});$('#clearLogs').onclick=()=>$('#logs').innerHTML='';$('#exportDiag').onclick=async()=>{let b=$('#exportDiag');b.disabled=true;b.textContent='Создание…';try{let path=await invoke('export_diagnostics');toast('Отчёт сохранён');log('INFO','Диагностический ZIP: '+path)}catch(e){toast(String(e));log('ERROR',String(e))}b.disabled=false;b.textContent='Экспорт ZIP'};$('#runDiag').onclick=async()=>{let b=$('#runDiag');b.textContent='Проверяем…';log('INFO','Запущена диагностика сети');try{if(!invoke)throw Error('Backend недоступен');let d=await invoke('run_diagnostics');$('#diagIp').textContent=d.ip||'Недоступен';$('#diagDns').textContent=d.dns?'Работает':'Ошибка';$('#diagTransport').textContent=(d.tcp?'TCP доступен':'TCP недоступен')+(d.via_tunnel?' · через VPN':' · напрямую')+(d.latency_ms!=null?' · '+d.latency_ms+' мс':'');if(d.ip){$('#publicIp').textContent=d.ip;$('#metricIp').textContent=d.ip;$('#ipDot').className='online-dot'}log('INFO','Диагностика завершена')}catch(e){log('ERROR',String(e));toast(String(e))}b.textContent='Запустить диагностику'};
-const themes=['lzt','oled','oled-particles','system'];
+const themes=['lzt','oled','oled-particles','system','graphite'];
 const systemDark=matchMedia('(prefers-color-scheme:dark)');
 let particleField;
 function syncParticleMotion(){
@@ -525,5 +807,5 @@ window.addEventListener('blur',syncParticleMotion);
 systemDark.addEventListener('change',()=>{if(localStorage.theme==='system')applyTheme('system')});
 $$('#themes .theme').forEach(button=>button.onclick=()=>applyTheme(button.dataset.theme));
 applyTheme(localStorage.theme||'lzt');
-$('#ipPill').onclick=()=>{if(invoke)refreshExternalIp()};if(invoke)refreshExternalIp();$$('.modal-bg').forEach(m=>m.addEventListener('mousedown',e=>{if(e.target===m)m.classList.remove('show')}));document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal-bg').forEach(m=>m.classList.remove('show'))});$('#quickFav').onclick=()=>{go('servers');filter='favorite';$$('#protoFilter button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='favorite'));renderServers()};$$('[data-setting=autoupdate]').forEach(x=>x.onclick=()=>{localStorage.autoUpdateEnabled=autoUpdateOn()?'false':'true';renderAutoUpdate();toast(autoUpdateOn()?'Автообновление подписок включено':'Автообновление подписок выключено')});renderAutoUpdate();$('#themeCycle').onclick=()=>{const index=themes.indexOf(localStorage.theme);applyTheme(themes[(index+1)%themes.length])};function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2000)}let reconnectAttempt=0,manualDisconnect=false;if(invoke)setInterval(async()=>{if(!connected||$('#connectBtn').disabled)return;const server=activeServer;try{let s=await invoke('connection_status');if(server!==activeServer)return;if(connected&&!s.connected&&!$('#connectBtn').disabled){let failedServer=activeServer;connected=false;activeServer=null;renderServers();clearInterval(timer);stopStats();$('#connectBtn').classList.remove('on');$('#connectBtn').textContent='Подключиться';$('#statusDot').classList.remove('on');$('#stateText').textContent=s.state==='failed'?'Ошибка соединения':'Не подключено';if(s.error){log('ERROR',s.error);toast(s.error)}if(!manualDisconnect){if(failedServer)failedServer.unavailable=true;let wait=Math.min(30000,1000*Math.pow(2,reconnectAttempt++));log('INFO','Переподключение через '+Math.round(wait/1000)+' с');setTimeout(()=>{if(!connected)$('#connectBtn').click()},wait)}}if(s.network_changed&&connected)log('INFO','Изменилась сеть — переподключитесь')}catch{}},2500);
+$('#ipPill').onclick=()=>{if(invoke)refreshExternalIp()};if(invoke)refreshExternalIp();$$('.modal-bg').forEach(m=>m.addEventListener('mousedown',e=>{if(e.target===m)m.classList.remove('show')}));document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal-bg').forEach(m=>m.classList.remove('show'))});$('#quickFav').onclick=()=>{go('servers');filter='favorite';$$('#protoFilter button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='favorite'));renderServers()};$$('[data-setting=autoupdate]').forEach(x=>x.onclick=()=>{localStorage.autoUpdateEnabled=autoUpdateOn()?'false':'true';renderAutoUpdate();toast(autoUpdateOn()?'Автообновление подписок включено':'Автообновление подписок выключено')});renderAutoUpdate();$('#themeCycle').onclick=()=>{const index=themes.indexOf(localStorage.theme);applyTheme(themes[(index+1)%themes.length])};function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2000)}let reconnectAttempt=0,manualDisconnect=false;if(invoke)setInterval(async()=>{if(!connected||$('#connectBtn').disabled)return;const server=activeServer;try{let s=await invoke('connection_status');if(server!==activeServer)return;if(connected&&!s.connected&&!$('#connectBtn').disabled){let failedServer=activeServer;notifyVpn(true,failedServer);connected=false;activeServer=null;renderServers();clearInterval(timer);stopStats();$('#connectBtn').classList.remove('on');$('#connectBtn').textContent='Подключиться';$('#statusDot').classList.remove('on');$('#stateText').textContent=s.state==='failed'?'Ошибка соединения':'Не подключено';if(s.error){log('ERROR',s.error);toast(s.error)}if(!manualDisconnect){if(failedServer)failedServer.unavailable=true;let wait=Math.min(30000,1000*Math.pow(2,reconnectAttempt++));log('INFO','Переподключение через '+Math.round(wait/1000)+' с');setTimeout(()=>{if(!connected)$('#connectBtn').click()},wait)}}if(s.network_changed&&connected)log('INFO','Изменилась сеть — переподключитесь')}catch{}},2500);
 </script></body></html>

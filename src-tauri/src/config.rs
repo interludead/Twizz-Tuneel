@@ -239,19 +239,6 @@ fn dns_server(tag: &str, address: &str, detour: &str) -> Value {
 
 /// sing-box still ships the legacy Clash API in 1.11–1.13 and drops it in
 /// 1.14; unknown top-level fields make `check` fail hard, so the block is only
-/// emitted for versions known to accept it. Unknown versions default to on:
-/// the builder currently fetches 1.12.x, where the API works.
-pub fn supports_clash_api(version_text: &str) -> bool {
-    let token = version_text
-        .split_whitespace()
-        .find(|part| part.chars().next().map(|c| c.is_ascii_digit()).unwrap_or(false));
-    let Some(token) = token else { return true };
-    let mut parts = token.trim_start_matches('v').split('.');
-    let major: u32 = parts.next().and_then(|p| p.parse().ok()).unwrap_or(1);
-    let minor: u32 = parts.next().and_then(|p| p.parse().ok()).unwrap_or(0);
-    major < 1 || (major == 1 && minor < 14)
-}
-
 /// Builds the sing-box configuration.
 ///
 /// `bridge` is `Some((port, process_name))` when a specialised protocol core
@@ -259,7 +246,7 @@ pub fn supports_clash_api(version_text: &str) -> bool {
 /// DNS, sniffing and routing and forwards traffic into the local SOCKS5 bridge,
 /// while the upstream core process itself is routed directly so its own
 /// connection to the server cannot loop back into the tunnel.
-pub fn build(request:&ConnectRequest,bridge:Option<(u16,&str)>,stats_port:Option<u16>,bypass_ips:&[String],probe_port:u16,profile_sets:&[(String, std::path::PathBuf)])->Result<Value,String>{
+pub fn build(request:&ConnectRequest,bridge:Option<(u16,&str)>,stats:Option<(u16,&str)>,bypass_ips:&[String],probe_port:u16,profile_sets:&[(String, std::path::PathBuf)])->Result<Value,String>{
     // The loopback mixed inbound exists in both modes: the UI measures the
     // exit IP through it while TUN owns the rest of the traffic.
     let mixed = json!({"type":"mixed","tag":"mixed-in","listen":"127.0.0.1","listen_port":2080});
@@ -319,7 +306,7 @@ pub fn build(request:&ConnectRequest,bridge:Option<(u16,&str)>,stats_port:Option
     // Loopback-only Clash API exposes /connections with cumulative session
     // traffic, which the dashboard polls while connected.
     let mut experimental = json!({"cache_file":{"enabled":request.cache_enabled}});
-    if let Some(port)=stats_port{experimental["clash_api"]=json!({"external_controller":format!("127.0.0.1:{port}")});}
+    if let Some((port, secret))=stats{experimental["clash_api"]=json!({"external_controller":format!("127.0.0.1:{port}"),"secret":secret});}
     let requested=request.dns.trim();
     let secure_address=if requested.is_empty()||matches!(requested.to_ascii_lowercase().as_str(),"local"|"system"|"dhcp"|"fakeip"){"https://1.1.1.1/dns-query"}else{requested};
     let dns_strategy=if request.ipv6_mode=="block"{"ipv4_only"}else{"prefer_ipv4"};

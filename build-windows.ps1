@@ -395,7 +395,7 @@ $releaseExe = Join-Path $root "src-tauri\target\release\lzt-tunnel.exe"
 if ((Test-Path $releaseExe) -eq $false) { throw "The release executable was not created." }
 $outDir = Join-Path $root "dist"
 New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-$finalExe = Join-Path $outDir "LZT-Tunnel.exe"
+$finalExe = Join-Path $outDir "Twizz-Tuneel-TUN.exe"
 Copy-Item -Path $releaseExe -Destination $finalExe -Force
 Write-Host "Build completed. Single portable executable:"
 Write-Host $finalExe
